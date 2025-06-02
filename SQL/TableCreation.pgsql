@@ -62,6 +62,7 @@ CREATE TABLE Account (
   account_id       SERIAL      PRIMARY KEY,
   account_email    VARCHAR(100) NOT NULL UNIQUE,
   account_username VARCHAR(50) NOT NULL UNIQUE,
+  account_photo BYTEA,
   account_phone VARCHAR(20),
   account_number   VARCHAR(20) NOT NULL UNIQUE,
   account_password VARCHAR(100) NOT NULL,
@@ -84,6 +85,8 @@ CREATE TABLE Company (
   company_id   SERIAL      PRIMARY KEY,
   company_name VARCHAR(100) NOT NULL,
   company_email VARCHAR(100) NOT NULL UNIQUE,
+  company_rating NUMERIC(3, 2) DEFAULT 0.00,
+  company_photo BYTEA,
   company_phone VARCHAR(20),
   company_website VARCHAR(100),
   company_description TEXT,
@@ -95,6 +98,7 @@ CREATE TABLE Company (
 CREATE TABLE Employee (
   employee_id   SERIAL      PRIMARY KEY,
   person_id     INTEGER     NOT NULL REFERENCES Person(person_id) ON DELETE CASCADE,
+  employee_photo BYTEA,
   account_id    INTEGER     NOT NULL REFERENCES Account(account_id) ON DELETE CASCADE,
   company_id    INTEGER     REFERENCES Company(company_id) ON DELETE CASCADE,
   position_name VARCHAR(100)
@@ -125,9 +129,18 @@ CREATE TABLE Job (
   company_id      INTEGER     NOT NULL REFERENCES Company(company_id) ON DELETE CASCADE,
   job_name        VARCHAR(100) NOT NULL,
   job_description TEXT,
+  job_location   VARCHAR(100),
+  job_quantity     INTEGER DEFAULT 1,
+  job_requirements TEXT,
+  job_benefits    TEXT,
   job_type_id     INTEGER     NOT NULL REFERENCES Job_type(job_type_id) ON DELETE CASCADE,
   job_salary      NUMERIC(10, 2),
-  job_time        VARCHAR(50)
+  job_time        VARCHAR(50),
+  job_rating      NUMERIC(3, 2) DEFAULT 0.00,
+  job_posted_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  job_hiring_date TIMESTAMP,
+  job_closing_date TIMESTAMP,
+  job_is_active   BOOLEAN DEFAULT TRUE
 );
 
 -- Job_Category_List table - to link jobs with their categories
