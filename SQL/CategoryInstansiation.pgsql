@@ -1,128 +1,222 @@
-CREATE Databbase dbMayo;
+-- Remove invalid CREATE DATABASE statement
+-- CREATE DATABASE dbMayo;
 
 -- Job Categories filler
-INSERT INTO Job_category (job_category_id, job_category_name) VALUES
-  (10000001, 'Information Technology'),
-  (10000002, 'Business Analyst'),
-  (10000003, 'Civil Engineering'),
-  (10000004, 'Accounting'),
-  (10000005, 'Marketing'),
-  (10000006, 'Education'),
-  (10000007, 'Healthcare'),
-  (10000008, 'Finance'),
-  (10000009, 'Sales'),
-  (10000010, 'Human Resources');
+-- Remove all data from tables in correct order to avoid FK constraint issues
+TRUNCATE TABLE Job_Category_List RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Job RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Company RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Account RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Address RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Nationality RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Account_type RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Job_type RESTART IDENTITY CASCADE;
+TRUNCATE TABLE Job_category RESTART IDENTITY CASCADE;
+
+
+
+INSERT INTO Job_category (job_category_name) VALUES
+  ('Information Technology'),
+  ('Business Analyst'),
+  ('Civil Engineering'),
+  ('Accounting'),
+  ('Marketing'),
+  ('Education'),
+  ('Healthcare'),
+  ('Finance'),
+  ('Sales'),
+  ('Human Resources');
 
 -- Job Types filler
-INSERT INTO Job_type (job_type_id, job_type_name) VALUES
-  (20000001, 'Full Time'),
-  (20000002, 'Part Time'),
-  (20000003, 'Contract'),
-  (20000004, 'Internship'),
-  (20000005, 'Temporary');
+INSERT INTO Job_type (job_type_name) VALUES
+  ('Full Time'),
+  ('Part Time'),
+  ('Contract'),
+  ('Internship'),
+  ('Temporary');
 
+-- Account Types filler
+INSERT INTO Account_type (account_type_name) VALUES
+  ('Company'),
+  ('Job Seeker');
 
-INSERT INTO account_type (account_type_id, account_type_name) VALUES
-  (10000001, 'Company'),
-  (10000002, 'Job Seeker');
+-- Sample Nationalities
+INSERT INTO Nationality (nationality_name) VALUES
+  ('Filipino'),
+  ('American'),
+  ('Japanese');
 
-select * from job_category;
-
- 
 -- Sample Addresses
-INSERT INTO Address (address_id, premise_name, street_name, barangay_name, city_name) VALUES
-  (30000001, 'Alpha Tower', 'Rizal St', 'Poblacion District', 'Davao City'),
-  (30000002, 'Beta Plaza', 'C.M. Recto St', 'Talomo District', 'Davao City'),
-  (30000003, 'Gamma Building', 'J.P. Laurel Ave', 'Buhangin District', 'Davao City');
+INSERT INTO Address (premise_name, street_name, barangay_name, city_name) VALUES
+  ('Alpha Tower', 'Rizal St', 'Poblacion District', 'Davao City'),
+  ('Beta Plaza', 'C.M. Recto St', 'Talomo District', 'Davao City'),
+  ('Gamma Building', 'J.P. Laurel Ave', 'Buhangin District', 'Davao City');
 
 -- Sample Accounts
-INSERT INTO Account (account_id, account_email, account_username, account_number, account_password, account_type_id, sso_user_id) VALUES
-  (40000001, 'alpha@company.com', 'alphauser', 'ACC1001', 'passAlpha', 10000001, NULL),
-  (40000002, 'beta@company.com', 'betauser', 'ACC1002', 'passBeta', 10000001, NULL),
-  (40000003, 'gamma@company.com', 'gammauser', 'ACC1003', 'passGamma', 10000001, NULL);
+INSERT INTO Account (account_email, account_username, account_number, account_password, account_type_id, sso_user_id) VALUES
+  ('alpha@company.com', 'alphauser', 'ACC1001', 'passAlpha', 1, NULL),
+  ('beta@company.com', 'betauser', 'ACC1002', 'passBeta', 1, NULL),
+  ('gamma@company.com', 'gammauser', 'ACC1003', 'passGamma', 1, NULL);
 
 -- Sample Companies
-INSERT INTO Company (company_id, company_name, address_id, account_id) VALUES
-  (50000001, 'Alpha Solutions', 30000001, 40000001),
-  (50000002, 'Beta Innovations', 30000002, 40000002),
-  (50000003, 'Gamma Enterprises', 30000003, 40000003);
+INSERT INTO Company (company_name, address_id, account_id) VALUES
+  ('Alpha Solutions', 1, 1),
+  ('Beta Innovations', 2, 2),
+  ('Gamma Enterprises', 3, 3);
 
 -- Sample Jobs for Alpha Solutions
-INSERT INTO Job (job_id, company_id, job_name, job_type_id, job_salary, job_time, job_description) VALUES
-  (60000001, 50000001, 'Software Engineer', 20000001, '60000', '40 hours/week', 'Develop and maintain software applications using modern programming languages and frameworks. Collaborate with cross-functional teams to design and implement solutions.'),
-  (60000002, 50000001, 'Business Analyst', 20000002, '40000', '20 hours/week', 'Analyze business requirements and translate them into technical specifications. Work with stakeholders to improve business processes and systems.'),
-  (60000003, 50000001, 'QA Tester', 20000003, '35000', '30 hours/week', 'Design and execute test plans to ensure software quality. Identify and document bugs, and verify fixes.'),
-  (60000004, 50000001, 'IT Support', 20000001, '30000', '40 hours/week', 'Provide technical assistance and support for computer systems, hardware, and software. Troubleshoot and resolve IT issues.'),
-  (60000005, 50000001, 'HR Specialist', 20000005, '32000', '25 hours/week', 'Manage recruitment processes, employee relations, and HR administrative functions. Support company culture and employee engagement initiatives.');
+INSERT INTO Job (company_id, job_name, job_type_id, job_salary, job_time, job_description) VALUES
+  (1, 'Software Engineer', 1, 60000.00, '40 hours/week', 'Develop and maintain software applications using modern programming languages and frameworks. Collaborate with cross-functional teams to design and implement solutions.'),
+  (1, 'Business Analyst', 2, 40000.00, '20 hours/week', 'Analyze business requirements and translate them into technical specifications. Work with stakeholders to improve business processes and systems.'),
+  (1, 'QA Tester', 3, 35000.00, '30 hours/week', 'Design and execute test plans to ensure software quality. Identify and document bugs, and verify fixes.'),
+  (1, 'IT Support', 1, 30000.00, '40 hours/week', 'Provide technical assistance and support for computer systems, hardware, and software. Troubleshoot and resolve IT issues.'),
+  (1, 'HR Specialist', 5, 32000.00, '25 hours/week', 'Manage recruitment processes, employee relations, and HR administrative functions. Support company culture and employee engagement initiatives.');
 
 -- Sample Jobs for Beta Innovations
-INSERT INTO Job (job_id, company_id, job_name, job_type_id, job_salary, job_time, job_description) VALUES
-  (60000006, 50000002, 'Civil Engineer', 20000001, '70000', '40 hours/week', 'Design and supervise infrastructure projects. Prepare plans, specifications, and cost estimates for construction projects.'),
-  (60000007, 50000002, 'Accountant', 20000001, '50000', '40 hours/week', 'Prepare financial statements, analyze financial information, and ensure compliance with financial regulations and standards.'),
-  (60000008, 50000002, 'Marketing Lead', 20000002, '45000', '25 hours/week', 'Develop and implement marketing strategies to promote products and services. Analyze market trends and competitor activities.'),
-  (60000009, 50000002, 'Sales Executive', 20000003, '40000', '30 hours/week', 'Generate leads, build client relationships, and meet sales targets. Represent the company at industry events and trade shows.'),
-  (60000010, 50000002, 'Finance Analyst', 20000001, '55000', '40 hours/week', 'Conduct financial analysis, prepare reports, and provide recommendations to support business.');
+INSERT INTO Job (company_id, job_name, job_type_id, job_salary, job_time, job_description) VALUES
+  (2, 'Civil Engineer', 1, 70000.00, '40 hours/week', 'Design and supervise infrastructure projects. Prepare plans, specifications, and cost estimates for construction projects.'),
+  (2, 'Accountant', 1, 50000.00, '40 hours/week', 'Prepare financial statements, analyze financial information, and ensure compliance with financial regulations and standards.'),
+  (2, 'Marketing Lead', 2, 45000.00, '25 hours/week', 'Develop and implement marketing strategies to promote products and services. Analyze market trends and competitor activities.'),
+  (2, 'Sales Executive', 3, 40000.00, '30 hours/week', 'Generate leads, build client relationships, and meet sales targets. Represent the company at industry events and trade shows.'),
+  (2, 'Finance Analyst', 1, 55000.00, '40 hours/week', 'Conduct financial analysis, prepare reports, and provide recommendations to support business.');
 
 -- Sample Jobs for Gamma Enterprises
-INSERT INTO Job (job_id, company_id, job_name, job_type_id, job_salary, job_time) VALUES
-  (60000011, 50000003, 'Teacher', 20000004, '25000', '15 hours/week'),
-  (60000012, 50000003, 'Nurse', 20000001, '48000', '40 hours/week'),
-  (60000013, 50000003, 'Sales Associate', 20000005, '22000', '20 hours/week'),
-  (60000014, 50000003, 'HR Manager', 20000001, '52000', '40 hours/week'),
-  (60000015, 50000003, 'IT Consultant', 20000003, '65000', '30 hours/week');
+INSERT INTO Job (company_id, job_name, job_type_id, job_salary, job_time, job_description) VALUES
+  (3, 'Teacher', 4, 25000.00, '15 hours/week', 'Educate students and prepare lesson plans.'),
+  (3, 'Nurse', 1, 48000.00, '40 hours/week', 'Provide healthcare services and patient care.'),
+  (3, 'Sales Associate', 5, 22000.00, '20 hours/week', 'Assist customers and promote sales.'),
+  (3, 'HR Manager', 1, 52000.00, '40 hours/week', 'Oversee HR functions and manage employee relations.'),
+  (3, 'IT Consultant', 3, 65000.00, '30 hours/week', 'Provide IT solutions and consultancy services.');
 
 -- Job_Category_List for Alpha Solutions Jobs
 INSERT INTO Job_Category_List (job_id, job_category_id) VALUES
-  (60000001, 10000001), -- Software Engineer: IT
-  (60000001, 10000008), -- Software Engineer: Finance
-  (60000002, 10000002), -- Business Analyst: Business Analyst
-  (60000002, 10000001), -- Business Analyst: IT
-  (60000003, 10000001), -- QA Tester: IT
-  (60000004, 10000001), -- IT Support: IT
-  (60000005, 10000010); -- HR Specialist: Human Resources
+  (1, 1), -- Software Engineer: IT
+  (1, 8), -- Software Engineer: Finance
+  (2, 2), -- Business Analyst: Business Analyst
+  (2, 1), -- Business Analyst: IT
+  (3, 1), -- QA Tester: IT
+  (4, 1), -- IT Support: IT
+  (5, 10); -- HR Specialist: Human Resources
 
 -- Job_Category_List for Beta Innovations Jobs
 INSERT INTO Job_Category_List (job_id, job_category_id) VALUES
-  (60000006, 10000003), -- Civil Engineer: Civil Engineering
-  (60000007, 10000004), -- Accountant: Accounting
-  (60000008, 10000005), -- Marketing Lead: Marketing
-  (60000008, 10000009), -- Marketing Lead: Sales
-  (60000009, 10000009), -- Sales Executive: Sales
-  (60000010, 10000008); -- Finance Analyst: Finance
+  (6, 3), -- Civil Engineer: Civil Engineering
+  (7, 4), -- Accountant: Accounting
+  (8, 5), -- Marketing Lead: Marketing
+  (8, 9), -- Marketing Lead: Sales
+  (9, 9), -- Sales Executive: Sales
+  (10, 8); -- Finance Analyst: Finance
 
 -- Job_Category_List for Gamma Enterprises Jobs
 INSERT INTO Job_Category_List (job_id, job_category_id) VALUES
-  (60000011, 10000006), -- Teacher: Education
-  (60000012, 10000007), -- Nurse: Healthcare
-  (60000013, 10000009), -- Sales Associate: Sales
-  (60000014, 10000010), -- HR Manager: Human Resources
-  (60000015, 10000001), -- IT Consultant: IT
-  (60000015, 10000002); -- IT Consultant: Business Analyst
+  (11, 6), -- Teacher: Education
+  (12, 7), -- Nurse: Healthcare
+  (13, 9), -- Sales Associate: Sales
+  (14, 10), -- HR Manager: Human Resources
+  (15, 1), -- IT Consultant: IT
+  (15, 2); -- IT Consultant: Business Analyst
 
+-- Add random notifications
+DO $$
+DECLARE
+  i INTEGER;
+  notification_texts TEXT[] := ARRAY[
+    'Your account has been updated.',
+    'New job posting available.',
+    'Your application has been reviewed.',
+    'Password change request.',
+    'Company profile updated.',
+    'New message from HR.',
+    'Job interview scheduled.',
+    'Application status updated.',
+    'New job recommendations.',
+    'Account verification required.',
+    'Reminder: Update your profile.',
+    'New connection request.',
+    'Job offer received.',
+    'Your subscription has been renewed.',
+    'Feedback request for recent application.',
+    'Upcoming event notification.',
+    'Your resume has been viewed.',
+    'New training session available.',
+    'Important security update.',
+    'Your account has been flagged for review.'
+  ];
+BEGIN
+  FOR i IN 1..20 LOOP
+    INSERT INTO Notifications (account_id, notification_text, sender_account_id, is_read)
+    VALUES (
+      (SELECT account_id FROM Account ORDER BY RANDOM() LIMIT 1), 
+      notification_texts[i],
+      (SELECT account_id FROM Account ORDER BY RANDOM() LIMIT 1),
+      FALSE
+    );
+  END LOOP;
+END $$;
 
+-- Sample Queries
 
-  SELECT 
-    j.job_id, 
-    c.company_name,
-    j.job_name, 
-    j.job_description,
-    jt.job_type_name,
-    j.job_salary,
-    j.job_time,
-    string_agg(jc.job_category_name, ', ' ORDER BY jc.job_category_name) AS categories
-  FROM 
-    Job j
-  JOIN 
-    Company c ON j.company_id = c.company_id
-  JOIN 
-    Job_type jt ON j.job_type_id = jt.job_type_id
-  JOIN 
-    Job_Category_List jcl ON j.job_id = jcl.job_id
-  JOIN 
-    Job_category jc ON jcl.job_category_id = jc.job_category_id
-  WHERE 
-    c.company_name = 'Alpha Solutions'
-  GROUP BY
-    j.job_id, c.company_name, j.job_name, jt.job_type_name, j.job_salary, j.job_time
-  ORDER BY 
-    j.job_id;
+-- Query to get jobs data based on company name
+SELECT 
+  j.job_id, 
+  c.company_name,
+  j.job_name, 
+  j.job_description,
+  jt.job_type_name,
+  j.job_salary,
+  j.job_time,
+  string_agg(jc.job_category_name, ', ' ORDER BY jc.job_category_name) AS categories
+FROM 
+  Job j
+JOIN 
+  Company c ON j.company_id = c.company_id
+JOIN 
+  Job_type jt ON j.job_type_id = jt.job_type_id
+JOIN 
+  Job_Category_List jcl ON j.job_id = jcl.job_id
+JOIN 
+  Job_category jc ON jcl.job_category_id = jc.job_category_id
+WHERE 
+  c.company_name = 'Alpha Solutions'
+GROUP BY
+  j.job_id, c.company_name, j.job_name, j.job_description, jt.job_type_name, j.job_salary, j.job_time
+ORDER BY 
+  j.job_id;
+
+-- Query to get accounts based on account type
+SELECT 
+  a.account_id,
+  a.account_email,
+  a.account_username,
+  a.account_number,
+  at.account_type_name,
+  a.account_is_verified
+FROM 
+  Account a
+JOIN 
+  Account_type at ON a.account_type_id = at.account_type_id
+WHERE 
+  at.account_type_name = 'Company'
+ORDER BY 
+  a.account_id;
+
+-- Query to get notifications based on account ID
+SELECT 
+  n.notification_id,
+  n.notification_text,
+  n.notification_date,
+  n.is_read,
+  n.sender_account_id,
+  a.account_username AS account_name,
+  c.company_name AS company_name
+FROM 
+  Notifications n
+LEFT JOIN 
+  Account a ON n.account_id = a.account_id
+LEFT JOIN 
+  Company c ON a.account_id = c.account_id
+WHERE 
+  n.account_id = 3
+ORDER BY 
+  n.notification_date DESC;
+

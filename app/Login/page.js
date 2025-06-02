@@ -1,31 +1,53 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './login.css';
 
 export default function LoginPage() {
-  const [userType, setUserType] = useState('employee');
+  const router = useRouter();
+  const [userType, setUserType] = useState('job-seeker');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', { userType, username, password });
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, userType })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Redirect to email verification page
+        router.push(`/Login/verify?email=${encodeURIComponent(data.email)}`);
+      } else {
+        setError(data.error || 'Login failed');
+      }
+    } catch (error) {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
-    // Handle Google login logic here
-    console.log('Google login attempt');
+    window.location.href = '/api/auth/google';
   };
 
   const handleForgotPassword = () => {
-    // Handle forgot password logic here
-    console.log('Forgot password');
+    router.push('/Login/forgot-password');
   };
 
   const handleSignup = () => {
-    // Handle signup navigation here
-    console.log('Navigate to signup');
+    router.push('/Login/Register');
   };
 
   return (
@@ -35,18 +57,20 @@ export default function LoginPage() {
         
         <h2 className="login-title">LOGIN</h2>
         
+        {error && <div className="error-message">{error}</div>}
+        
         <div className="user-type-toggle">
+          <button 
+            className={`toggle-btn ${userType === 'job-seeker' ? 'active' : ''}`}
+            onClick={() => setUserType('job-seeker')}
+          >
+            Job Seeker
+          </button>
           <button 
             className={`toggle-btn ${userType === 'employee' ? 'active' : ''}`}
             onClick={() => setUserType('employee')}
           >
             Employee
-          </button>
-          <button 
-            className={`toggle-btn ${userType === 'employer' ? 'active' : ''}`}
-            onClick={() => setUserType('employer')}
-          >
-            Employer
           </button>
         </div>
 
@@ -81,8 +105,8 @@ export default function LoginPage() {
             >
               FORGOT PASSWORD ?
             </button>
-            <button type="submit" className="login-btn">
-              LOGIN
+            <button type="submit" className="login-btn" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'LOGIN'}
             </button>
           </div>
         </form>
