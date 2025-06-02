@@ -46,8 +46,6 @@ CREATE TABLE Person (
 -- Person_skills table - to store resume of employees and job seekers
 CREATE TABLE Person_resume (
   person_id    INTEGER NOT NULL REFERENCES Person(person_id) ON DELETE CASCADE,
-  resume       BYTEA,
-  resume_date  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (person_id)
 );
 
@@ -63,6 +61,7 @@ CREATE TABLE Account (
   account_email    VARCHAR(100) NOT NULL UNIQUE,
   account_username VARCHAR(50) NOT NULL UNIQUE,
   account_photo BYTEA,
+  account_resume BYTEA,
   account_phone VARCHAR(20),
   account_number   VARCHAR(20) NOT NULL UNIQUE,
   account_password VARCHAR(100) NOT NULL,
@@ -86,7 +85,6 @@ CREATE TABLE Company (
   company_name VARCHAR(100) NOT NULL,
   company_email VARCHAR(100) NOT NULL UNIQUE,
   company_rating NUMERIC(3, 2) DEFAULT 0.00,
-  company_photo BYTEA,
   company_phone VARCHAR(20),
   company_website VARCHAR(100),
   company_description TEXT,
