@@ -164,3 +164,44 @@ CREATE TABLE Jobseeker_preference(
   person_id INTEGER NOT NULL REFERENCES Person(person_id) ON DELETE CASCADE,
   preferred_job_category_id INTEGER NOT NULL REFERENCES Job_category(job_category_id) ON DELETE CASCADE
 );
+
+INSERT INTO Job_category (job_category_name) VALUES
+  ('Information Technology'),
+  ('Information Systems'),
+  ('Software Development'),
+  ('Data Science'),
+  ('Cybersecurity'),
+  ('Web Development'),
+  ('Mobile Development'),
+  ('Network Engineering'),
+  ('Cloud Computing'),
+  ('Artificial Intelligence'),
+  ('Machine Learning'),
+  ('Business Intelligence'),
+  ('Project Management'),
+  ('Quality Assurance'),
+  ('DevOps'),
+  ('Game Development'),
+  ('Graphic Design'),
+  ('Content Creation'),
+  ('Digital Marketing'),
+  ('E-commerce Management'),
+  ('Human Resources Management'),
+  ('Legal Services'),
+  ('Business Analyst'),
+  ('Civil Engineering'),
+  ('Accounting'),
+  ('Marketing'),
+  ('Education'),
+  ('Healthcare'),
+  ('Finance'),
+  ('Sales'),
+  ('Human Resources');
+
+-- Job Types filler
+INSERT INTO Job_type (job_type_name) VALUES
+  ('Full Time'),
+  ('Part Time'),
+  ('Contract'),
+  ('Internship'),
+  ('Temporary');

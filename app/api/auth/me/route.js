@@ -100,7 +100,7 @@ export async function GET(request) {
 }
 
 // Export other HTTP methods to satisfy Next.js requirements
-export async function GET() {
+export async function POST() {
   return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
 }
 

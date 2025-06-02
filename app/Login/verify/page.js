@@ -34,9 +34,15 @@ export default function VerifyPage() {
       const data = await response.json();
       
       if (response.ok) {
-        // Store token and redirect to dashboard
+        // Store token
         localStorage.setItem('authToken', data.token);
-        router.push('/dashboard');
+        
+        // Check if job seeker needs to set preferences
+        if (data.user.isJobSeeker && !data.user.hasPreferences) {
+          router.push('/job-preferences');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
         setError(data.error || 'Verification failed');
       }

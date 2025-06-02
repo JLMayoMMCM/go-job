@@ -58,12 +58,15 @@ export async function POST(request) {
           a.account_id, a.account_username, a.account_email, 
           at.account_type_name,
           p.first_name, p.last_name,
-          js.job_seeker_id
+          js.job_seeker_id,
+          CASE WHEN COUNT(jp.person_id) > 0 THEN true ELSE false END as has_preferences
         FROM Account a
         JOIN Account_type at ON a.account_type_id = at.account_type_id
         JOIN Job_seeker js ON a.account_id = js.account_id
         JOIN Person p ON js.person_id = p.person_id
+        LEFT JOIN Jobseeker_preference jp ON p.person_id = jp.person_id
         WHERE a.account_id = $1
+        GROUP BY a.account_id, a.account_username, a.account_email, at.account_type_name, p.first_name, p.last_name, js.job_seeker_id
       `, [codeData.account_id]);
     } else if (codeData.account_type_name === 'Company') {
       userQuery = await client.query(`
@@ -135,7 +138,8 @@ export async function POST(request) {
         accountType: user.account_type_name,
         userType: user.account_type_name === 'Company' ? 'employer' : 'job-seeker',
         isJobSeeker: !!user.job_seeker_id,
-        isEmployee: !!user.employee_id
+        isEmployee: !!user.employee_id,
+        hasPreferences: user.has_preferences || false
       }
     });
 

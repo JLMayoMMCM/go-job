@@ -37,6 +37,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showVerificationOptions, setShowVerificationOptions] = useState(false);
 
   // Fetch companies when user type is employer
   useEffect(() => {
@@ -112,10 +113,18 @@ export default function RegisterPage() {
       const data = await response.json();
       
       if (response.ok) {
-        setSuccess('Registration successful! Please check your email for verification.');
-        setTimeout(() => {
-          router.push('/Login');
-        }, 3000);
+        if (formData.userType === 'company') {
+          setSuccess(`Company registration successful! Your Company ID is: ${data.companyId}. Save this ID for your employees to use when registering.`);
+          setTimeout(() => {
+            router.push('/Login');
+          }, 5000);
+        } else {
+          setSuccess(data.message);
+          // Show verification options for user accounts
+          setTimeout(() => {
+            setShowVerificationOptions(true);
+          }, 2000);
+        }
       } else {
         setError(data.error || 'Registration failed');
       }
@@ -124,6 +133,14 @@ export default function RegisterPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleVerifyNow = () => {
+    router.push(`/Login/verify?email=${encodeURIComponent(formData.email)}`);
+  };
+
+  const handleVerifyLater = () => {
+    router.push('/Login');
   };
 
   return (
@@ -353,6 +370,36 @@ export default function RegisterPage() {
             {isLoading ? 'Registering...' : 'REGISTER'}
           </button>
         </form>
+
+        {/* Verification Options Modal */}
+        {showVerificationOptions && (
+          <div className="verification-modal">
+            <div className="verification-modal-content">
+              <h3>Account Created Successfully!</h3>
+              <p>A verification email has been sent to <strong>{formData.email}</strong></p>
+              <p>Would you like to verify your email now or later?</p>
+              
+              <div className="verification-options">
+                <button 
+                  className="verify-now-btn"
+                  onClick={handleVerifyNow}
+                >
+                  Verify Now
+                </button>
+                <button 
+                  className="verify-later-btn"
+                  onClick={handleVerifyLater}
+                >
+                  Verify Later
+                </button>
+              </div>
+              
+              <p className="verification-note">
+                You can verify your email anytime from your profile page.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="register-company-section">
           <span>Want to register your company?</span>

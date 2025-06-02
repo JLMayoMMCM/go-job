@@ -1,11 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import DashboardHeader from '@/components/DashboardHeader';
+import JobCard from '@/components/JobCard';
 import './dashboard.css';
 
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [allJobs, setAllJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -24,6 +28,13 @@ export default function Dashboard() {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+          
+          // Load jobs based on user type
+          if (userData.isJobSeeker) {
+            await loadJobSeekerJobs(token);
+          } else {
+            await loadEmployeeJobs(token);
+          }
         } else {
           router.push('/Login');
         }
@@ -37,6 +48,48 @@ export default function Dashboard() {
     checkAuth();
   }, [router]);
 
+  const loadJobSeekerJobs = async (token) => {
+    try {
+      // Load recommended jobs
+      const recommendedResponse = await fetch('/api/jobs/recommended', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (recommendedResponse.ok) {
+        const recommendedData = await recommendedResponse.json();
+        setRecommendedJobs(recommendedData.slice(0, 8));
+      }
+
+      // Load all jobs
+      const allJobsResponse = await fetch('/api/jobs/all', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (allJobsResponse.ok) {
+        const allJobsData = await allJobsResponse.json();
+        setAllJobs(allJobsData.slice(0, 8));
+      }
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    }
+  };
+
+  const loadEmployeeJobs = async (token) => {
+    try {
+      // Load company jobs for employees
+      const companyJobsResponse = await fetch('/api/jobs/company', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (companyJobsResponse.ok) {
+        const companyJobsData = await companyJobsResponse.json();
+        setAllJobs(companyJobsData.slice(0, 8));
+      }
+    } catch (error) {
+      console.error('Error loading company jobs:', error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     router.push('/');
@@ -48,61 +101,98 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1 className="logo">GO JOB</h1>
-        <nav className="dashboard-nav">
-          <button className="nav-btn">Jobs</button>
-          <button className="nav-btn">Profile</button>
-          <button className="nav-btn">Messages</button>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
-        </nav>
-      </header>
+      <DashboardHeader user={user} />
 
       <main className="dashboard-main">
         <div className="welcome-section">
           <h2>Welcome back, {user?.firstName || 'User'}!</h2>
-          <p>Ready to find your next opportunity?</p>
+          <p>{user?.isJobSeeker ? 'Ready to find your next opportunity?' : 'Manage your job postings and applications'}</p>
         </div>
 
         <div className="dashboard-content">
-          <div className="stats-cards">
-            <div className="stat-card">
-              <h3>Applications</h3>
-              <p className="stat-number">12</p>
-              <span className="stat-label">Pending</span>
-            </div>
-            <div className="stat-card">
-              <h3>Messages</h3>
-              <p className="stat-number">5</p>
-              <span className="stat-label">Unread</span>
-            </div>
-            <div className="stat-card">
-              <h3>Profile Views</h3>
-              <p className="stat-number">47</p>
-              <span className="stat-label">This month</span>
-            </div>
-          </div>
+          {user?.isJobSeeker ? (
+            <>
+              {/* Recommended Jobs Section */}
+              <div className="jobs-section">
+                <div className="section-header">
+                  <h3>Recommended Jobs</h3>
+                  <button 
+                    className="view-all-btn"
+                    onClick={() => router.push('/jobs/recommended')}
+                  >
+                    View All Recommended
+                  </button>
+                </div>
+                <div className="jobs-scroll-container">
+                  <div className="jobs-list">
+                    {recommendedJobs.map(job => (
+                      <JobCard key={job.job_id} job={job} />
+                    ))}
+                  </div>
+                </div>
+              </div>
 
-          <div className="recent-jobs">
-            <h3>Recent Job Matches</h3>
-            <div className="job-list">
-              <div className="job-item">
-                <h4>Software Engineer</h4>
-                <p>Alpha Solutions</p>
-                <span className="job-salary">$60,000</span>
+              {/* All Jobs Section */}
+              <div className="jobs-section">
+                <div className="section-header">
+                  <h3>Available Jobs</h3>
+                  <button 
+                    className="view-all-btn"
+                    onClick={() => router.push('/jobs/all')}
+                  >
+                    View All Jobs
+                  </button>
+                </div>
+                <div className="jobs-scroll-container">
+                  <div className="jobs-list">
+                    {allJobs.map(job => (
+                      <JobCard key={job.job_id} job={job} />
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="job-item">
-                <h4>Business Analyst</h4>
-                <p>Beta Innovations</p>
-                <span className="job-salary">$55,000</span>
+            </>
+          ) : (
+            <>
+              {/* Employee Dashboard */}
+              <div className="stats-cards">
+                <div className="stat-card">
+                  <h3>Active Postings</h3>
+                  <p className="stat-number">{allJobs.length}</p>
+                  <span className="stat-label">Currently hiring</span>
+                </div>
+                <div className="stat-card">
+                  <h3>Applications</h3>
+                  <p className="stat-number">24</p>
+                  <span className="stat-label">Pending review</span>
+                </div>
+                <div className="stat-card">
+                  <h3>Positions Filled</h3>
+                  <p className="stat-number">8</p>
+                  <span className="stat-label">This month</span>
+                </div>
               </div>
-              <div className="job-item">
-                <h4>QA Tester</h4>
-                <p>Gamma Enterprises</p>
-                <span className="job-salary">$45,000</span>
+
+              <div className="jobs-section">
+                <div className="section-header">
+                  <h3>Your Job Postings</h3>
+                  <button 
+                    className="add-job-btn"
+                    onClick={() => router.push('/jobs/create')}
+                  >
+                    Add New Job
+                  </button>
+                </div>
+                <div className="jobs-scroll-container">
+                  <div className="jobs-list">
+                    {allJobs.map(job => (
+                      <JobCard key={job.job_id} job={job} isEmployer={true} />
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </main>
     </div>
