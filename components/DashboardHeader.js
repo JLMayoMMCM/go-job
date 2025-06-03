@@ -216,6 +216,16 @@ export default function DashboardHeader({ user }) {
                   </li>
                   <li>
                     <button
+                      onClick={() => router.push('/companies')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/companies' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🏢 Browse Companies
+                    </button>
+                  </li>
+                  <li>
+                    <button
                       onClick={() => router.push('/jobseeker/applications')}
                       className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                         pathname === '/jobseeker/applications' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'

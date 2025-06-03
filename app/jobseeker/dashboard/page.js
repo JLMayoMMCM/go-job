@@ -163,6 +163,13 @@ export default function JobseekerDashboard() {
                 <div className="font-semibold">Saved Jobs</div>
               </button>
               <button
+                onClick={() => router.push('/companies')}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white p-6 rounded-lg transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="text-3xl mb-2">🏢</div>
+                <div className="font-semibold">Browse Companies</div>
+              </button>
+              <button
                 onClick={() => router.push('/jobseeker/notifications')}
                 className="bg-orange-600 hover:bg-orange-700 text-white p-6 rounded-lg transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg"
               >

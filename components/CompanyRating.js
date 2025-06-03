@@ -9,6 +9,7 @@ export default function CompanyRating({ companyId, companyName, onRatingSubmitte
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userRating, setUserRating] = useState(null);
   const [hasRated, setHasRated] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadUserRating();
@@ -36,9 +37,14 @@ export default function CompanyRating({ companyId, companyName, onRatingSubmitte
   };
 
   const handleSubmit = async () => {
-    if (rating === 0) return;
+    if (rating === 0) {
+      setError('Please select a rating');
+      return;
+    }
 
     setIsSubmitting(true);
+    setError('');
+
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/company/${companyId}/rate`, {
@@ -57,9 +63,12 @@ export default function CompanyRating({ companyId, companyName, onRatingSubmitte
         if (onRatingSubmitted) {
           onRatingSubmitted(data.averageRating);
         }
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to submit rating');
       }
     } catch (error) {
-      console.error('Error submitting rating:', error);
+      setError('Network error. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -103,6 +112,12 @@ export default function CompanyRating({ companyId, companyName, onRatingSubmitte
                   <p className="text-blue-800 text-sm">
                     You previously rated this company. Update your rating below.
                   </p>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-100 text-red-800 p-3 rounded-md mb-4">
+                  {error}
                 </div>
               )}
 

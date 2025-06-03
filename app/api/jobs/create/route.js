@@ -106,6 +106,26 @@ export async function POST(request) {
       `Job "${jobName}" has been successfully created and is now active for applications.`
     ]);
 
+    // Send notifications to followers about new job posting
+    const followersQuery = await client.query(`
+      SELECT DISTINCT js.account_id, c.company_name
+      FROM Followed_companies fc
+      JOIN Job_seeker js ON fc.job_seeker_id = js.job_seeker_id
+      JOIN Company c ON fc.company_id = c.company_id
+      WHERE fc.company_id = $1
+    `, [companyId]);
+
+    for (const follower of followersQuery.rows) {
+      await client.query(`
+        INSERT INTO Notifications (account_id, notification_text, sender_account_id)
+        VALUES ($1, $2, $3)
+      `, [
+        follower.account_id,
+        `${follower.company_name} has posted a new job: "${jobName}". Check it out!`,
+        payload.userId
+      ]);
+    }
+
     await client.query('COMMIT');
 
     return NextResponse.json({

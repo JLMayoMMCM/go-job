@@ -192,6 +192,15 @@ CREATE TABLE Company_ratings (
   UNIQUE(company_id, job_seeker_id)
 );
 
+-- Followed Companies table - to store companies followed by job seekers
+CREATE TABLE Followed_companies (
+  follow_id     SERIAL      PRIMARY KEY,
+  company_id    INTEGER     NOT NULL REFERENCES Company(company_id) ON DELETE CASCADE,
+  job_seeker_id INTEGER     NOT NULL REFERENCES Job_seeker(job_seeker_id) ON DELETE CASCADE,
+  follow_date   TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(company_id, job_seeker_id)
+);
+
 -- Insert data for categories and types
 INSERT INTO Account_type (account_type_id, account_type_name) 
 VALUES (1, 'Company'), (2, 'Job Seeker') 
