@@ -5,11 +5,19 @@ export async function GET() {
   const client = await pool.connect();
   
   try {
-    const result = await client.query(
-      'SELECT job_category_id, job_category_name FROM Job_category ORDER BY job_category_name ASC'
-    );
+    const categoriesQuery = await client.query(`
+      SELECT 
+        jc.job_category_id,
+        jc.job_category_name,
+        cf.category_field_id,
+        cf.category_field_name
+      FROM Job_category jc
+      JOIN Category_field cf ON jc.category_field_id = cf.category_field_id
+      ORDER BY cf.category_field_name, jc.job_category_name
+    `);
 
-    return NextResponse.json(result.rows);
+    return NextResponse.json(categoriesQuery.rows);
+
   } catch (error) {
     console.error('Error fetching job categories:', error);
     return NextResponse.json(

@@ -19,6 +19,7 @@ export default function AddJobPage() {
     jobTypeId: '',
     jobSalary: '',
     jobQuantity: 1,
+    jobTime: '',
     jobRequirements: '',
     jobBenefits: '',
     jobClosingDate: '',
@@ -238,6 +239,18 @@ export default function AddJobPage() {
                   value={formData.jobLocation}
                   onChange={handleInputChange}
                   required
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job Time</label>
+                <input
+                  type="text"
+                  name="jobTime"
+                  value={formData.jobTime}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 9:00 AM - 5:00 PM, Flexible, Night Shift"
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>

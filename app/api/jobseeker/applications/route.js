@@ -22,23 +22,8 @@ export async function GET(request) {
     const token = authHeader.split(' ')[1];
     const { payload } = await jwtVerify(token, JWT_SECRET);
 
-    // Get job seeker ID
-    const jobSeekerQuery = await client.query(
-      'SELECT job_seeker_id FROM Job_seeker WHERE account_id = $1',
-      [payload.userId]
-    );
-
-    if (jobSeekerQuery.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Job seeker profile not found' },
-        { status: 404 }
-      );
-    }
-
-    const jobSeekerId = jobSeekerQuery.rows[0].job_seeker_id;
-
-    // Get all job requests for this job seeker
-    const requestsQuery = await client.query(`
+    // Get job seeker's applications
+    const applicationsQuery = await client.query(`
       SELECT 
         jr.request_id,
         jr.request_date,
@@ -50,22 +35,30 @@ export async function GET(request) {
         j.job_name,
         j.job_location,
         j.job_salary,
+        j.job_description,
         c.company_name,
+        c.company_logo,
         jt.job_type_name
       FROM Job_requests jr
+      JOIN Job_seeker js ON jr.job_seeker_id = js.job_seeker_id
       JOIN Job j ON jr.job_id = j.job_id
       JOIN Company c ON j.company_id = c.company_id
       JOIN Job_type jt ON j.job_type_id = jt.job_type_id
-      WHERE jr.job_seeker_id = $1
+      WHERE js.account_id = $1
       ORDER BY jr.request_date DESC
-    `, [jobSeekerId]);
+    `, [payload.userId]);
 
-    return NextResponse.json(requestsQuery.rows);
+    const applications = applicationsQuery.rows.map(app => ({
+      ...app,
+      company_logo: app.company_logo ? Buffer.from(app.company_logo).toString('base64') : null
+    }));
+
+    return NextResponse.json(applications);
 
   } catch (error) {
-    console.error('Error fetching job applications:', error);
+    console.error('Error fetching applications:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch job applications' },
+      { error: 'Failed to fetch applications' },
       { status: 500 }
     );
   } finally {

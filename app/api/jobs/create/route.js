@@ -29,6 +29,7 @@ export async function POST(request) {
       jobTypeId,
       jobSalary,
       jobQuantity,
+      jobTime,
       jobRequirements,
       jobBenefits,
       jobClosingDate,
@@ -71,8 +72,8 @@ export async function POST(request) {
     const jobResult = await client.query(`
       INSERT INTO Job (
         company_id, job_name, job_description, job_location, job_type_id,
-        job_salary, job_quantity, job_requirements, job_benefits, job_closing_date
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        job_salary, job_quantity, job_time, job_requirements, job_benefits, job_closing_date
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING job_id
     `, [
       companyId,
@@ -82,26 +83,34 @@ export async function POST(request) {
       jobTypeId,
       jobSalary || null,
       jobQuantity || 1,
+      jobTime || null,
       jobRequirements || null,
       jobBenefits || null,
       jobClosingDate || null
     ]);
 
-    const jobId = jobResult.rows[0].job_id;
-
-    // Link job with categories
+    // Create job categories associations
     for (const categoryId of jobCategories) {
       await client.query(
         'INSERT INTO Job_Category_List (job_id, job_category_id) VALUES ($1, $2)',
-        [jobId, categoryId]
+        [jobResult.rows[0].job_id, categoryId]
       );
     }
+
+    // Send notification to the employee about successful job creation
+    await client.query(`
+      INSERT INTO Notifications (account_id, notification_text)
+      VALUES ($1, $2)
+    `, [
+      payload.userId,
+      `Job "${jobName}" has been successfully created and is now active for applications.`
+    ]);
 
     await client.query('COMMIT');
 
     return NextResponse.json({
       message: 'Job created successfully',
-      jobId: jobId
+      jobId: jobResult.rows[0].job_id
     });
 
   } catch (error) {

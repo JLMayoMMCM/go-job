@@ -26,16 +26,16 @@ export default function Home() {
     }
   };
 
-  const handleGuestEntry = () => {
+  const handleBrowseJobs = () => {
     try {
-      console.log('Entering as guest');
+      console.log('Browsing jobs as guest');
       if (router && router.push) {
-        router.push('/guest');
+        router.push('/jobs');
       } else {
         console.error('Router push method not available');
       }
     } catch (error) {
-      console.error('Error navigating to guest:', error);
+      console.error('Error navigating to jobs:', error);
     }
   };
 
@@ -47,10 +47,10 @@ export default function Home() {
         
         <div className="landing-buttons">
           <button 
-            className="guest-button"
-            onClick={handleGuestEntry}
+            className="browse-button"
+            onClick={handleBrowseJobs}
           >
-            Continue as Guest
+            Browse Jobs
           </button>
           
           <button 

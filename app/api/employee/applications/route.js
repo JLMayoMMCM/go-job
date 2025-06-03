@@ -22,49 +22,30 @@ export async function GET(request) {
     const token = authHeader.split(' ')[1];
     const { payload } = await jwtVerify(token, JWT_SECRET);
 
-    // Get employee's company
-    const employeeQuery = await client.query(
-      'SELECT company_id FROM Employee WHERE account_id = $1',
-      [payload.userId]
-    );
-
-    if (employeeQuery.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Employee not found' },
-        { status: 404 }
-      );
-    }
-
-    const companyId = employeeQuery.rows[0].company_id;
-
-    // Get all job requests for company's jobs
-    const requestsQuery = await client.query(`
+    // Get applications for employee's company jobs
+    const applicationsQuery = await client.query(`
       SELECT 
-        jr.request_id,
-        jr.request_date,
-        jr.request_status,
-        jr.cover_letter,
-        jr.employee_response,
-        jr.response_date,
-        j.job_id,
+        jr.*,
         j.job_name,
+        j.job_id,
         p.first_name || ' ' || p.last_name as applicant_name,
         a.account_email as applicant_email
       FROM Job_requests jr
       JOIN Job j ON jr.job_id = j.job_id
+      JOIN Employee e ON j.company_id = e.company_id
       JOIN Job_seeker js ON jr.job_seeker_id = js.job_seeker_id
       JOIN Person p ON js.person_id = p.person_id
       JOIN Account a ON js.account_id = a.account_id
-      WHERE j.company_id = $1
+      WHERE e.account_id = $1
       ORDER BY jr.request_date DESC
-    `, [companyId]);
+    `, [payload.userId]);
 
-    return NextResponse.json(requestsQuery.rows);
+    return NextResponse.json(applicationsQuery.rows);
 
   } catch (error) {
-    console.error('Error fetching job requests:', error);
+    console.error('Error fetching applications:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch job requests' },
+      { error: 'Failed to fetch applications' },
       { status: 500 }
     );
   } finally {

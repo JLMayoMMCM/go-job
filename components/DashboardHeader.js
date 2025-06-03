@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import './DashboardHeader.css';
 
 export default function DashboardHeader({ user }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(user);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -189,100 +190,148 @@ export default function DashboardHeader({ user }) {
           </div>
 
           <nav className="sidebar-nav">
-            <button 
-              className="nav-link" 
-              onClick={() => navigateTo('/profile')}
-            >
-              👤 Profile
-            </button>
+            <ul className="sidebar-menu">
+              {/* Job Seeker Sidebar Items */}
+              {user?.isJobSeeker && (
+                <>
+                  <li>
+                    <button
+                      onClick={() => router.push('/jobseeker/dashboard')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/jobseeker/dashboard' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🏠 Dashboard
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/jobs')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/jobs' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      💼 Browse Jobs
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/jobseeker/applications')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/jobseeker/applications' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      📋 My Applications
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/jobseeker/saved-jobs')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/jobseeker/saved-jobs' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      💾 Saved Jobs
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/jobseeker/notifications')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/jobseeker/notifications' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🔔 Notifications
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/profile')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/profile' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      👤 Profile
+                    </button>
+                  </li>
+                </>
+              )}
 
-            {/* Job Seeker Navigation Links */}
-            {currentUser?.isJobSeeker && (
-              <>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/jobseeker/dashboard')}
-                >
-                  🏠 Dashboard
-                </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/jobs')}
-                >
-                  🔍 Job Search
-                </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/jobseeker/applications')}
-                >
-                  📋 My Applications
-                </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/jobseeker/saved-jobs')}
-                >
-                  ❤️ Saved Jobs
-                </button>
-              </>
-            )}
+              {/* Employee Sidebar Items */}
+              {user?.isEmployee && (
+                <>
+                  <li>
+                    <button
+                      onClick={() => router.push('/employee/dashboard')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/employee/dashboard' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🏠 Dashboard
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/employee/add-job')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/employee/add-job' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      ➕ Add Job
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/employee/job-requests')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/employee/job-requests' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      📋 Job Requests
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/employee/posting-history')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/employee/posting-history' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      📝 Posting History
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/employee/notifications')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/employee/notifications' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🔔 Notifications
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/profile')}
+                      className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                        pathname === '/profile' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      👤 Profile
+                    </button>
+                  </li>
+                </>
+              )}
 
-            {/* Employee Navigation Links */}
-            {currentUser?.isEmployee && (
-              <>
+              <li>
                 <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/employee/dashboard')}
+                  className="nav-link logout-link" 
+                  onClick={handleLogout}
                 >
-                  🏠 Dashboard
+                  🚪 Logout
                 </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/employee/job-requests')}
-                >
-                  📋 Job Requests
-                </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/employee/posting-history')}
-                >
-                  📝 My Jobs
-                </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/employee/add-job')}
-                >
-                  ➕ Add Job
-                </button>
-                <button 
-                  className="nav-link notification-link" 
-                  onClick={() => navigateTo('/employee/notifications')}
-                >
-                  🔔 Notifications
-                  {unreadCount > 0 && (
-                    <span className="notification-badge">{unreadCount}</span>
-                  )}
-                </button>
-                <button 
-                  className="nav-link" 
-                  onClick={() => navigateTo('/employee/company')}
-                >
-                  🏢 Company
-                </button>
-              </>
-            )}
-
-            <button 
-              className="nav-link" 
-              onClick={() => navigateTo('/jobs')}
-            >
-              💼 Browse Jobs
-            </button>
-            <button 
-              className="nav-link logout-link" 
-              onClick={handleLogout}
-            >
-              🚪 Logout
-            </button>
+              </li>
+            </ul>
           </nav>
         </div>
       </div>

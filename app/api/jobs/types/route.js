@@ -5,11 +5,14 @@ export async function GET() {
   const client = await pool.connect();
   
   try {
-    const result = await client.query(
-      'SELECT job_type_id, job_type_name FROM Job_type ORDER BY job_type_name ASC'
-    );
+    const typesQuery = await client.query(`
+      SELECT job_type_id, job_type_name
+      FROM Job_type
+      ORDER BY job_type_name
+    `);
 
-    return NextResponse.json(result.rows);
+    return NextResponse.json(typesQuery.rows);
+
   } catch (error) {
     console.error('Error fetching job types:', error);
     return NextResponse.json(

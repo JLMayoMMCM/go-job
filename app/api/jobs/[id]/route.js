@@ -11,10 +11,10 @@ export async function GET(request, { params }) {
   
   try {
     const jobId = params.id;
+    const authHeader = request.headers.get('authorization');
     let userId = null;
 
-    // Check if user is authenticated (optional for job details)
-    const authHeader = request.headers.get('authorization');
+    // Check if user is authenticated
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
         const token = authHeader.split(' ')[1];
@@ -25,30 +25,19 @@ export async function GET(request, { params }) {
       }
     }
 
-    // Get job details with company info and categories
+    // Get job details with company information
     const jobQuery = await client.query(`
       SELECT 
         j.*,
+        c.company_id, c.company_name, c.company_rating, c.company_logo,
+        c.company_description, c.company_website, c.company_phone,
         jt.job_type_name,
-        c.company_name,
-        c.company_description,
-        c.company_website,
-        c.company_logo,
-        c.company_rating,
-        array_agg(
-          json_build_object(
-            'job_category_id', jcat.job_category_id,
-            'job_category_name', jcat.job_category_name
-          )
-        ) FILTER (WHERE jcat.job_category_id IS NOT NULL) as categories
+        a.premise_name, a.street_name, a.barangay_name, a.city_name
       FROM Job j
-      JOIN Job_type jt ON j.job_type_id = jt.job_type_id
       JOIN Company c ON j.company_id = c.company_id
-      LEFT JOIN Job_Category_List jcl ON j.job_id = jcl.job_id
-      LEFT JOIN Job_category jcat ON jcl.job_category_id = jcat.job_category_id
+      JOIN Job_type jt ON j.job_type_id = jt.job_type_id
+      JOIN Address a ON c.address_id = a.address_id
       WHERE j.job_id = $1
-      GROUP BY j.job_id, jt.job_type_name, c.company_name, c.company_description, 
-               c.company_website, c.company_logo, c.company_rating
     `, [jobId]);
 
     if (jobQuery.rows.length === 0) {
@@ -59,50 +48,42 @@ export async function GET(request, { params }) {
     }
 
     const job = jobQuery.rows[0];
-    
-    // Convert company logo to base64 if exists
-    const company = {
-      company_name: job.company_name,
-      company_description: job.company_description,
-      company_website: job.company_website,
-      company_rating: job.company_rating,
-      company_logo: job.company_logo ? Buffer.from(job.company_logo).toString('base64') : null
-    };
 
-    // Remove company fields from job object
-    delete job.company_name;
-    delete job.company_description;
-    delete job.company_website;
-    delete job.company_logo;
-    delete job.company_rating;
+    // Get job categories
+    const categoriesQuery = await client.query(`
+      SELECT jc.job_category_id, jc.job_category_name, cf.category_field_name
+      FROM Job_Category_List jcl
+      JOIN Job_category jc ON jcl.job_category_id = jc.job_category_id
+      JOIN Category_field cf ON jc.category_field_id = cf.category_field_id
+      WHERE jcl.job_id = $1
+    `, [jobId]);
+
+    job.categories = categoriesQuery.rows;
 
     let hasApplied = false;
     let isSaved = false;
 
-    // Check if user has applied for this job (only for authenticated job seekers)
+    // Check if user has applied or saved this job (only for authenticated users)
     if (userId) {
       const applicationQuery = await client.query(`
-        SELECT jr.request_id
-        FROM Job_requests jr
+        SELECT 1 FROM Job_requests jr
         JOIN Job_seeker js ON jr.job_seeker_id = js.job_seeker_id
         WHERE jr.job_id = $1 AND js.account_id = $2
       `, [jobId, userId]);
-      
+
       hasApplied = applicationQuery.rows.length > 0;
 
-      // Check if user has saved this job
-      const savedJobQuery = await client.query(`
+      const savedQuery = await client.query(`
         SELECT 1 FROM Saved_jobs sj
         JOIN Job_seeker js ON sj.job_seeker_id = js.job_seeker_id
         WHERE sj.job_id = $1 AND js.account_id = $2
       `, [jobId, userId]);
-      
-      isSaved = savedJobQuery.rows.length > 0;
+
+      isSaved = savedQuery.rows.length > 0;
     }
 
     return NextResponse.json({
-      job,
-      company,
+      ...job,
       hasApplied,
       isSaved
     });

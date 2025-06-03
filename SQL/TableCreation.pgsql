@@ -5,8 +5,11 @@
 DROP TABLE IF EXISTS Job_requests CASCADE;
 DROP TABLE IF EXISTS Job_applications CASCADE;
 DROP TABLE IF EXISTS Job_Category_List CASCADE;
+DROP TABLE IF EXISTS Saved_jobs CASCADE;
+DROP TABLE IF EXISTS Jobseeker_preference CASCADE;
 DROP TABLE IF EXISTS Job CASCADE;
 DROP TABLE IF EXISTS Job_category CASCADE;
+DROP TABLE IF EXISTS Category_field CASCADE;
 DROP TABLE IF EXISTS Job_type CASCADE;
 DROP TABLE IF EXISTS Job_seeker CASCADE;
 DROP TABLE IF EXISTS Employee CASCADE;
@@ -15,7 +18,6 @@ DROP TABLE IF EXISTS Notifications CASCADE;
 DROP TABLE IF EXISTS Account CASCADE;
 DROP TABLE IF EXISTS Account_type CASCADE;
 DROP TABLE IF EXISTS Person_resume CASCADE;
-DROP TABLE IF EXISTS jobseeker_preference CASCADE;
 DROP TABLE IF EXISTS Person CASCADE;
 DROP TABLE IF EXISTS Address CASCADE;
 DROP TABLE IF EXISTS Nationality CASCADE;
@@ -117,10 +119,17 @@ CREATE TABLE Job_type (
   job_type_name VARCHAR(50) NOT NULL
 );
 
--- Job_category table
+-- Category field table - broad categories for organizing job categories
+CREATE TABLE Category_field (
+  category_field_id   SERIAL      PRIMARY KEY,
+  category_field_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Job_category table (modified to reference category field)
 CREATE TABLE Job_category (
-  job_category_id   SERIAL      PRIMARY KEY,
-  job_category_name VARCHAR(50) NOT NULL
+  job_category_id     SERIAL      PRIMARY KEY,
+  job_category_name   VARCHAR(50) NOT NULL,
+  category_field_id   INTEGER     NOT NULL REFERENCES Category_field(category_field_id) ON DELETE CASCADE
 );
 
 -- Job table
@@ -172,6 +181,17 @@ CREATE TABLE Saved_jobs (
   UNIQUE(job_id, job_seeker_id)
 );
 
+-- Company Ratings table - to store ratings given by job seekers to companies
+CREATE TABLE Company_ratings (
+  rating_id     SERIAL      PRIMARY KEY,
+  company_id    INTEGER     NOT NULL REFERENCES Company(company_id) ON DELETE CASCADE,
+  job_seeker_id INTEGER     NOT NULL REFERENCES Job_seeker(job_seeker_id) ON DELETE CASCADE,
+  rating        INTEGER     NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  review_text   TEXT,
+  rating_date   TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(company_id, job_seeker_id)
+);
+
 -- Insert data for categories and types
 INSERT INTO Account_type (account_type_id, account_type_name) 
 VALUES (1, 'Company'), (2, 'Job Seeker') 
@@ -187,46 +207,117 @@ CREATE TABLE Jobseeker_preference(
   preferred_job_category_id INTEGER NOT NULL REFERENCES Job_category(job_category_id) ON DELETE CASCADE
 );
 
-INSERT INTO Job_category (job_category_name) VALUES
-  ('Information Technology'),
-  ('Information Systems'),
-  ('Software Development'),
-  ('Data Science'),
-  ('Cybersecurity'),
-  ('Web Development'),
-  ('Mobile Development'),
-  ('Network Engineering'),
-  ('Cloud Computing'),
-  ('Artificial Intelligence'),
-  ('Machine Learning'),
-  ('Business Intelligence'),
-  ('Project Management'),
-  ('Quality Assurance'),
-  ('DevOps'),
-  ('Game Development'),
-  ('Graphic Design'),
-  ('Content Creation'),
-  ('Digital Marketing'),
-  ('E-commerce Management'),
-  ('Human Resources Management'),
-  ('Legal Services'),
-  ('Business Analyst'),
-  ('Civil Engineering'),
-  ('Accounting'),
-  ('Marketing'),
-  ('Education'),
+-- Insert category fields
+INSERT INTO Category_field (category_field_name) VALUES
   ('Healthcare'),
-  ('Finance'),
-  ('Sales'),
-  ('Human Resources');
+  ('Education'),
+  ('Technology'),
+  ('Business'),
+  ('Arts and Entertainment'),
+  ('Science'),
+  ('Engineering');
 
--- Job Types filler
-INSERT INTO Job_type (job_type_name) VALUES
-  ('Full Time'),
-  ('Part Time'),
-  ('Contract'),
-  ('Internship'),
-  ('Temporary');
+-- Insert job categories with category field references
+
+  -- Technology
+INSERT INTO Job_category (job_category_name, category_field_id) VALUES
+
+  ('Information Technology', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Information Systems', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Software Development', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Data Science', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Cybersecurity', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Web Development', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Mobile Development', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Network Engineering', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Cloud Computing', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Artificial Intelligence', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Machine Learning', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('DevOps', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology')),
+  ('Game Development', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Technology'));
+
+  -- Business
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+  ('Business Intelligence', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Project Management', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Business Analyst', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Human Resources Management', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('E-commerce Management', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Digital Marketing', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Marketing', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Finance', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Accounting', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Sales', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Human Resources', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business'));
+  
+  -- Arts and Entertainment
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+
+  ('Graphic Design', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment')),
+  ('Content Creation', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment')),
+  ('Video Production', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment')),
+  ('Photography', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment')),
+  ('Music Production', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment')),
+  ('Event Planning', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment')),
+  ('Performing Arts', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Arts and Entertainment'));
+
+  -- Healthcare
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+  ('Medical Laboratory', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare')),
+  ('Nursing', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare')),
+  ('Pharmacy', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare')),
+  ('Healthcare Administration', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare')),
+  ('Physical Therapy', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare')),
+  ('Occupational Therapy', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare')),
+  ('Medical Coding and Billing', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Healthcare'));
+
+  -- Education
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+  ('Teaching', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education')),
+  ('Educational Administration', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education')),
+  ('Curriculum Development', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education')),
+  ('Special Education', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education')),
+  ('Tutoring', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education')),
+  ('Training and Development', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education')),
+  ('Education', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Education'));
+  
+  -- Engineering
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+  ('Foreman', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Construction Management', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Laborer', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Construction Site Manager', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Carpenter', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Electrician', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Plumber', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Heavy Equipment Operator', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Surveyor', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Welder', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Pipefitter', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Safety Inspector', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('Demolition Specialist', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering')),
+  ('HVAC Technician', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Engineering'));
+
+  -- Science
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+  ('Research Scientist', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science')),
+  ('Laboratory Technician', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science')),
+  ('Environmental Scientist', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science')),
+  ('Biotechnology', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science')),
+  ('Pharmaceuticals', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science')),
+  ('Clinical Research', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science')),
+  ('Data Analysis', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Science'));
+
+
+  -- Business (Legal Services)
+INSERT INTO job_category (job_category_name, category_field_id) VALUES
+  ('Legal Advisor', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Corporate Lawyer', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Paralegal', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Compliance Officer', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Legal Assistant', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Contract Manager', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business')),
+  ('Legal Services', (SELECT category_field_id FROM Category_field WHERE category_field_name = 'Business'));
 
   -- Namsung sample Company
 INSERT INTO Address (premise_name, street_name, barangay_name, city_name) VALUES
@@ -252,88 +343,13 @@ INSERT INTO Company (company_name, company_email, company_phone, company_website
   ('AirTruck Logistics', 'support@airtruck.com', '09345678901', 'www.airtruck.com', 'Reliable logistics and transportation services', 
   (SELECT address_id FROM Address WHERE premise_name = 'AirTruck Logistics Center'));
 
--- Sample job postings for Namsung Corporation
-INSERT INTO Job (company_id, job_name, job_description, job_location, job_type_id, job_salary, job_quantity, job_requirements, job_benefits) VALUES
-  ((SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation'), 
-   'Software Engineer', 
-   'Develop and maintain software applications for our electronics products.',
-   'Davao City',
-   1, -- Full Time
-   45000.00,
-   2,
-   'Bachelor''s degree in Computer Science or related field. 2+ years experience in software development.',
-   'Health insurance, 13th month pay, performance bonus, training opportunities'),
-  
-  ((SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation'), 
-   'Quality Assurance Specialist', 
-   'Ensure product quality meets company standards through testing and analysis.',
-   'Davao City',
-   1, -- Full Time
-   35000.00,
-   1,
-   'Bachelor''s degree in Engineering or related field. Experience in quality control.',
-   'Health insurance, 13th month pay, overtime pay');
-
--- Sample job postings for Pear Technologies
-INSERT INTO Job (company_id, job_name, job_description, job_location, job_type_id, job_salary, job_quantity, job_requirements, job_benefits) VALUES
-  ((SELECT company_id FROM Company WHERE company_name = 'Pear Technologies'), 
-   'Full Stack Developer', 
-   'Build modern web applications using latest technologies.',
-   'Cebu City',
-   1, -- Full Time
-   55000.00,
-   3,
-   'Bachelor''s degree in Computer Science. Experience with React, Node.js, and databases.',
-   'Flexible working hours, health insurance, stock options, latest equipment'),
-  
-  ((SELECT company_id FROM Company WHERE company_name = 'Pear Technologies'), 
-   'UI/UX Designer', 
-   'Design beautiful and intuitive user interfaces for our software products.',
-   'Cebu City',
-   1, -- Full Time
-   40000.00,
-   1,
-   'Bachelor''s degree in Design or related field. Portfolio of design work required.',
-   'Creative workspace, design tools provided, health insurance');
-
--- Sample job postings for AirTruck Logistics
-INSERT INTO Job (company_id, job_name, job_description, job_location, job_type_id, job_salary, job_quantity, job_requirements, job_benefits) VALUES
-  ((SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics'), 
-   'Logistics Coordinator', 
-   'Coordinate shipments and manage logistics operations.',
-   'Manila',
-   1, -- Full Time
-   30000.00,
-   2,
-   'Bachelor''s degree preferred. Experience in logistics or supply chain management.',
-   'Transportation allowance, health insurance, 13th month pay'),
-  
-  ((SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics'), 
-   'Truck Driver', 
-   'Safely transport goods to various destinations.',
-   'Manila',
-   1, -- Full Time
-   25000.00,
-   5,
-   'Valid professional driver''s license. Clean driving record. 2+ years experience.',
-   'Vehicle maintenance covered, overtime pay, health insurance');
-
--- Link jobs with categories
-INSERT INTO Job_Category_List (job_id, job_category_id) VALUES
-  -- Namsung jobs
-  ((SELECT job_id FROM Job WHERE job_name = 'Software Engineer' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation')), 
-   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Software Development')),
-  ((SELECT job_id FROM Job WHERE job_name = 'Quality Assurance Specialist' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation')), 
-   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Quality Assurance')),
-  
-  -- Pear jobs
-  ((SELECT job_id FROM Job WHERE job_name = 'Full Stack Developer' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Pear Technologies')), 
-   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Web Development')),
-  ((SELECT job_id FROM Job WHERE job_name = 'UI/UX Designer' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Pear Technologies')), 
-   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Graphic Design')),
-  
-  -- AirTruck jobs - using existing categories or closest matches
-  ((SELECT job_id FROM Job WHERE job_name = 'Logistics Coordinator' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics')), 
-   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Project Management')),
-  ((SELECT job_id FROM Job WHERE job_name = 'Truck Driver' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics')), 
-   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Sales')); -- Using Sales as closest match for now
+-- Insert job types
+INSERT INTO Job_type (job_type_name) VALUES
+  ('Full-time'),
+  ('Part-time'),
+  ('Contract'),
+  ('Freelance'),
+  ('Internship'),
+  ('Remote'),
+  ('Hybrid'),
+  ('Temporary');

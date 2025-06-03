@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/DashboardHeader';
+import CompanyRating from '@/components/CompanyRating';
 
 export default function JobDetailsPage({ params }) {
   const router = useRouter();
@@ -47,8 +48,16 @@ export default function JobDetailsPage({ params }) {
 
       if (jobResponse.ok) {
         const jobData = await jobResponse.json();
-        setJob(jobData.job);
-        setCompany(jobData.company);
+        setJob(jobData);
+        // Handle company data that may be nested in the job object
+        setCompany(jobData.company || {
+          company_id: jobData.company_id,
+          company_name: jobData.company_name,
+          company_rating: jobData.company_rating,
+          company_logo: jobData.company_logo,
+          company_description: jobData.company_description,
+          company_website: jobData.company_website
+        });
         setHasApplied(jobData.hasApplied || false);
         setIsSaved(jobData.isSaved || false);
       } else {
@@ -139,6 +148,19 @@ export default function JobDetailsPage({ params }) {
     }
   };
 
+  const handleRatingSubmitted = (newAverageRating) => {
+    setCompany(prev => ({
+      ...prev,
+      company_rating: newAverageRating
+    }));
+    setJob(prev => ({
+      ...prev,
+      company_rating: newAverageRating
+    }));
+    setSuccess('Rating submitted successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
   }
@@ -166,7 +188,7 @@ export default function JobDetailsPage({ params }) {
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader user={user} />
       
-      <main className="p-8 max-w-6xl mx-auto">
+      <main className="p-8 max-w-4xl mx-auto">
         {error && (
           <div className="bg-red-100 text-red-800 p-3 rounded-md mb-4 border border-red-200">
             {error}

@@ -22,37 +22,20 @@ export async function GET(request) {
     const token = authHeader.split(' ')[1];
     const { payload } = await jwtVerify(token, JWT_SECRET);
 
-    // Get employee's company
-    const employeeQuery = await client.query(
-      'SELECT company_id FROM Employee WHERE account_id = $1',
-      [payload.userId]
-    );
-
-    if (employeeQuery.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Employee not found' },
-        { status: 404 }
-      );
-    }
-
-    const companyId = employeeQuery.rows[0].company_id;
-
-    // Get all jobs for the company with request counts
+    // Get employee's company jobs
     const jobsQuery = await client.query(`
       SELECT 
         j.*,
         jt.job_type_name,
-        COALESCE(jr_count.request_count, 0) as application_count
+        COUNT(jr.request_id) as application_count
       FROM Job j
       JOIN Job_type jt ON j.job_type_id = jt.job_type_id
-      LEFT JOIN (
-        SELECT job_id, COUNT(*) as request_count
-        FROM Job_requests
-        GROUP BY job_id
-      ) jr_count ON j.job_id = jr_count.job_id
-      WHERE j.company_id = $1
+      JOIN Employee e ON j.company_id = e.company_id
+      LEFT JOIN Job_requests jr ON j.job_id = jr.job_id
+      WHERE e.account_id = $1
+      GROUP BY j.job_id, jt.job_type_name
       ORDER BY j.job_posted_date DESC
-    `, [companyId]);
+    `, [payload.userId]);
 
     return NextResponse.json(jobsQuery.rows);
 

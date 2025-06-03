@@ -30,7 +30,7 @@
   justify-content: center;
 }
 
-.guest-button, .login-button {
+.login-button, .browse-button {
   padding: 1rem 2rem;
   font-size: 1.1rem;
   border: none;
@@ -40,18 +40,6 @@
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-}
-
-.guest-button {
-  background-color: #4caf50;
-  color: white;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-}
-
-.guest-button:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
 .login-button {
@@ -64,6 +52,18 @@
   background-color: #1976d2;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+.browse-button {
+  background-color: #ff6b35;
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.browse-button:hover {
+  background-color: #e55a2b;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
 @media (max-width: 768px) {
@@ -80,7 +80,7 @@
     align-items: center;
   }
   
-  .guest-button, .login-button {
+  .browse-button, .login-button {
     width: 200px;
   }
 }

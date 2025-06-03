@@ -79,14 +79,29 @@ export default function JobPreferencesPage() {
         {error && <div className="error-message">{error}</div>}
         
         <div className="categories-grid">
-          {categories.map(category => (
-            <button
-              key={category.job_category_id}
-              className={`category-btn ${selectedCategories.includes(category.job_category_id) ? 'selected' : ''}`}
-              onClick={() => handleCategoryToggle(category.job_category_id)}
-            >
-              {category.job_category_name}
-            </button>
+          {/* Group categories by field */}
+          {Object.entries(
+            categories.reduce((acc, category) => {
+              const fieldName = category.category_field_name || 'Other';
+              if (!acc[fieldName]) acc[fieldName] = [];
+              acc[fieldName].push(category);
+              return acc;
+            }, {})
+          ).map(([fieldName, fieldCategories]) => (
+            <div key={fieldName} className="field-group">
+              <h3 className="field-title">{fieldName}</h3>
+              <div className="field-categories">
+                {fieldCategories.map(category => (
+                  <button
+                    key={category.job_category_id}
+                    className={`category-btn ${selectedCategories.includes(category.job_category_id) ? 'selected' : ''}`}
+                    onClick={() => handleCategoryToggle(category.job_category_id)}
+                  >
+                    {category.job_category_name}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
