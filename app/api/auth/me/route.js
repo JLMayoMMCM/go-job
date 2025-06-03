@@ -40,17 +40,17 @@ export async function GET(request) {
         e.employee_id,
         c.company_name,
         e.position_name
-      FROM Account a
-      JOIN Account_type at ON a.account_type_id = at.account_type_id
-      LEFT JOIN Job_seeker js ON a.account_id = js.account_id
-      LEFT JOIN Employee e ON a.account_id = e.account_id
-      LEFT JOIN Person p_js ON js.person_id = p_js.person_id
-      LEFT JOIN Person p_e ON e.person_id = p_e.person_id
-      LEFT JOIN Address addr_js ON p_js.address_id = addr_js.address_id
-      LEFT JOIN Address addr_e ON p_e.address_id = addr_e.address_id
-      LEFT JOIN Nationality n_js ON p_js.nationality_id = n_js.nationality_id
-      LEFT JOIN Nationality n_e ON p_e.nationality_id = n_e.nationality_id
-      LEFT JOIN Company c ON e.company_id = c.company_id
+      FROM account a
+      JOIN account_type at ON a.account_type_id = at.account_type_id
+      LEFT JOIN job_seeker js ON a.account_id = js.account_id
+      LEFT JOIN employee e ON a.account_id = e.account_id
+      LEFT JOIN person p_js ON js.person_id = p_js.person_id
+      LEFT JOIN person p_e ON e.person_id = p_e.person_id
+      LEFT JOIN address addr_js ON p_js.address_id = addr_js.address_id
+      LEFT JOIN address addr_e ON p_e.address_id = addr_e.address_id
+      LEFT JOIN nationality n_js ON p_js.nationality_id = n_js.nationality_id
+      LEFT JOIN nationality n_e ON p_e.nationality_id = n_e.nationality_id
+      LEFT JOIN company c ON e.company_id = c.company_id
       WHERE a.account_id = $1
     `, [payload.userId]);
 

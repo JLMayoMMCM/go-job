@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import '../register.css';
 
 export default function CompanyRegisterPage() {
   const router = useRouter();
+  const [nationalities, setNationalities] = useState([]);
   const [formData, setFormData] = useState({
     companyName: '',
     companyEmail: '',
@@ -20,6 +21,26 @@ export default function CompanyRegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Load nationalities for future use (if needed for company contacts)
+  useEffect(() => {
+    loadNationalities();
+  }, []);
+
+  const loadNationalities = async () => {
+    try {
+      const response = await fetch('/api/nationalities');
+      if (response.ok) {
+        const data = await response.json();
+        setNationalities(data);
+        console.log('Nationalities loaded for company registration:', data.length); // Debug log
+      } else {
+        console.error('Failed to load nationalities');
+      }
+    } catch (error) {
+      console.error('Error loading nationalities:', error);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({

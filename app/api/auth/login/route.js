@@ -33,12 +33,12 @@ export async function POST(request) {
           addr.premise_name, addr.street_name, addr.barangay_name, addr.city_name,
           n.nationality_name,
           js.job_seeker_id
-        FROM Account a
-        JOIN Account_type at ON a.account_type_id = at.account_type_id
-        JOIN Job_seeker js ON a.account_id = js.account_id
-        JOIN Person p ON js.person_id = p.person_id
-        JOIN Address addr ON p.address_id = addr.address_id
-        JOIN Nationality n ON p.nationality_id = n.nationality_id
+        FROM account a
+        JOIN account_type at ON a.account_type_id = at.account_type_id
+        JOIN job_seeker js ON a.account_id = js.account_id
+        JOIN person p ON js.person_id = p.person_id
+        JOIN address addr ON p.address_id = addr.address_id
+        JOIN nationality n ON p.nationality_id = n.nationality_id
         WHERE (a.account_username = $1 OR a.account_email = $1) AND at.account_type_name = 'Job Seeker'
       `, [username]);
     } else if (userType === 'employee') {
@@ -53,13 +53,13 @@ export async function POST(request) {
           c.company_name,
           e.position_name,
           e.employee_id
-        FROM Account a
-        JOIN Account_type at ON a.account_type_id = at.account_type_id
-        JOIN Employee e ON a.account_id = e.account_id
-        JOIN Person p ON e.person_id = p.person_id
-        JOIN Address addr ON p.address_id = addr.address_id
-        JOIN Nationality n ON p.nationality_id = n.nationality_id
-        JOIN Company c ON e.company_id = c.company_id
+        FROM account a
+        JOIN account_type at ON a.account_type_id = at.account_type_id
+        JOIN employee e ON a.account_id = e.account_id
+        JOIN person p ON e.person_id = p.person_id
+        JOIN address addr ON p.address_id = addr.address_id
+        JOIN nationality n ON p.nationality_id = n.nationality_id
+        JOIN company c ON e.company_id = c.company_id
         WHERE (a.account_username = $1 OR a.account_email = $1) AND at.account_type_name = 'Company'
       `, [username]);
     } else {

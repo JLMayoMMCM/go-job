@@ -182,15 +182,17 @@ export async function POST(request) {
 
     // Insert or get nationality
     let nationalityResult = await client.query(
-      'SELECT nationality_id FROM Nationality WHERE nationality_name = $1',
+      'SELECT nationality_id FROM nationality WHERE nationality_name = $1',
       [nationalityName]
     );
 
     if (nationalityResult.rows.length === 0) {
+      // Create nationality if it doesn't exist in database
       nationalityResult = await client.query(
-        'INSERT INTO Nationality (nationality_name) VALUES ($1) RETURNING nationality_id',
+        'INSERT INTO nationality (nationality_name) VALUES ($1) RETURNING nationality_id',
         [nationalityName]
       );
+      console.log('Created new nationality during registration:', nationalityName);
     }
 
     // 1. Insert personal address

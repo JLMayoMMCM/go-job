@@ -207,7 +207,29 @@ VALUES (1, 'Company'), (2, 'Job Seeker')
 ON CONFLICT (account_type_id) DO NOTHING;
 
 INSERT INTO nationality (nationality_name) 
-VALUES ('Filipino'), ('American'), ('British'), ('Chinese'), ('Japanese'), ('Korean')
+VALUES 
+  ('Filipino'), ('American'), ('British'), ('Chinese'), ('Japanese'), ('Korean'),
+  ('Indian'), ('Indonesian'), ('Malaysian'), ('Singaporean'), ('Thai'), ('Vietnamese'),
+  ('Australian'), ('Canadian'), ('German'), ('French'), ('Italian'), ('Spanish'),
+  ('Mexican'), ('Brazilian'), ('Argentine'), ('Russian'), ('Saudi Arabian'), ('Emirati'),
+  ('South African'), ('Egyptian'), ('Nigerian'), ('Kenyan'), ('Moroccan'), ('Bangladeshi'),
+  ('Pakistani'), ('Sri Lankan'), ('Nepalese'), ('Myanmar'), ('Cambodian'), ('Laotian'),
+  ('Taiwanese'), ('Hong Kong'), ('Macanese'), ('Dutch'), ('Belgian'), ('Swiss'),
+  ('Austrian'), ('Swedish'), ('Norwegian'), ('Danish'), ('Finnish'), ('Polish'),
+  ('Czech'), ('Hungarian'), ('Romanian'), ('Bulgarian'), ('Greek'), ('Turkish'),
+  ('Israeli'), ('Lebanese'), ('Jordanian'), ('Kuwaiti'), ('Qatari'), ('Bahraini'),
+  ('Omani'), ('Yemeni'), ('Iraqi'), ('Iranian'), ('Afghan'), ('Kazakhstani'),
+  ('Uzbekistani'), ('Turkmen'), ('Kyrgyzstani'), ('Tajikistani'), ('Mongolian'),
+  ('North Korean'), ('Tibetan'), ('Bhutanese'), ('Maldivian'), ('Bruneian'),
+  ('Papua New Guinean'), ('Fijian'), ('Tongan'), ('Samoan'), ('Vanuatuan'),
+  ('Solomon Islander'), ('New Zealander'), ('Chilean'), ('Peruvian'), ('Ecuadorian'),
+  ('Colombian'), ('Venezuelan'), ('Uruguayan'), ('Paraguayan'), ('Bolivian'),
+  ('Guyanese'), ('Surinamese'), ('Portuguese'), ('Andorran'), ('Monégasque'),
+  ('Liechtenstein'), ('San Marinese'), ('Vatican'), ('Maltese'), ('Cypriot'),
+  ('Albanian'), ('Bosnian'), ('Croatian'), ('Serbian'), ('Montenegrin'),
+  ('North Macedonian'), ('Slovenian'), ('Slovakian'), ('Estonian'), ('Latvian'),
+  ('Lithuanian'), ('Belarusian'), ('Ukrainian'), ('Moldovan'), ('Armenian'),
+  ('Georgian'), ('Azerbaijani')
 ON CONFLICT (nationality_name) DO NOTHING;
 
 -- Jobseeker preference table - to store preferences of job seekers for algorithmic matching

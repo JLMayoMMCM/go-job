@@ -75,15 +75,17 @@ export async function POST(request) {
     let nationalityId = userData.nationality_id;
     if (nationality) {
       let nationalityResult = await client.query(
-        'SELECT nationality_id FROM Nationality WHERE nationality_name = $1',
+        'SELECT nationality_id FROM nationality WHERE nationality_name = $1',
         [nationality]
       );
 
       if (nationalityResult.rows.length === 0) {
+        // Create new nationality if it doesn't exist
         nationalityResult = await client.query(
-          'INSERT INTO Nationality (nationality_name) VALUES ($1) RETURNING nationality_id',
+          'INSERT INTO nationality (nationality_name) VALUES ($1) RETURNING nationality_id',
           [nationality]
         );
+        console.log('Created new nationality:', nationality);
       }
       nationalityId = nationalityResult.rows[0].nationality_id;
     }

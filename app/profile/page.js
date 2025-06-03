@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [jobCategories, setJobCategories] = useState([]);
   const [selectedPreferences, setSelectedPreferences] = useState([]);
   const [hasPreferences, setHasPreferences] = useState(false);
+  const [nationalities, setNationalities] = useState([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -35,7 +36,35 @@ export default function ProfilePage() {
 
   useEffect(() => {
     loadUserProfile();
+    loadNationalities();
   }, []);
+
+  const loadNationalities = async () => {
+    try {
+      const response = await fetch('/api/nationalities');
+      if (response.ok) {
+        const data = await response.json();
+        setNationalities(data);
+        console.log('Nationalities loaded:', data.length); // Debug log
+        
+        // Ensure default nationality is properly set
+        if (data.length > 0) {
+          const defaultNationality = data.find(n => n.name === 'Filipino');
+          if (defaultNationality && !formData.nationality) {
+            setFormData(prev => ({ ...prev, nationality: defaultNationality.name }));
+          }
+        }
+      } else {
+        console.error('Failed to load nationalities');
+        // Fallback to default if API fails
+        setNationalities([{ id: 1, name: 'Filipino' }]);
+      }
+    } catch (error) {
+      console.error('Error loading nationalities:', error);
+      // Fallback to default if API fails
+      setNationalities([{ id: 1, name: 'Filipino' }]);
+    }
+  };
 
   const loadUserProfile = async () => {
     const token = localStorage.getItem('authToken');
@@ -610,12 +639,11 @@ export default function ProfilePage() {
                       onChange={handleInputChange}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      <option value="Filipino">Filipino</option>
-                      <option value="American">American</option>
-                      <option value="British">British</option>
-                      <option value="Chinese">Chinese</option>
-                      <option value="Japanese">Japanese</option>
-                      <option value="Korean">Korean</option>
+                      {nationalities.map(nat => (
+                        <option key={nat.id} value={nat.name}>
+                          {nat.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
