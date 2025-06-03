@@ -86,39 +86,33 @@ export async function POST(request) {
       );
     }
 
-    // Create job application
+    // Insert the job application
     const applicationResult = await client.query(`
       INSERT INTO Job_requests (job_id, job_seeker_id, cover_letter)
       VALUES ($1, $2, $3)
       RETURNING request_id
-    `, [jobId, jobSeekerId, coverLetter || null]);
+    `, [jobId, jobSeekerId, coverLetter]);
 
-    // Create notification for company employees
-    const companyEmployeesQuery = await client.query(`
-      SELECT e.account_id
-      FROM Employee e
-      JOIN Job j ON e.company_id = j.company_id
+    // Get job and company details for notification
+    const jobDetailsQuery = await client.query(`
+      SELECT j.job_name, c.company_name, e.account_id as employer_account_id
+      FROM Job j
+      JOIN Company c ON j.company_id = c.company_id
+      JOIN Employee e ON c.company_id = e.company_id
       WHERE j.job_id = $1
+      LIMIT 1
     `, [jobId]);
 
-    // Get applicant name for notification
-    const applicantQuery = await client.query(`
-      SELECT p.first_name || ' ' || p.last_name as full_name
-      FROM Person p
-      JOIN Job_seeker js ON p.person_id = js.person_id
-      WHERE js.job_seeker_id = $1
-    `, [jobSeekerId]);
-
-    const applicantName = applicantQuery.rows[0]?.full_name || 'A job seeker';
-
-    // Send notifications to all company employees
-    for (const employee of companyEmployeesQuery.rows) {
+    if (jobDetailsQuery.rows.length > 0) {
+      const jobDetails = jobDetailsQuery.rows[0];
+      
+      // Send notification to employer
       await client.query(`
         INSERT INTO Notifications (account_id, notification_text, sender_account_id)
         VALUES ($1, $2, $3)
       `, [
-        employee.account_id,
-        `New job application received from ${applicantName} for ${job.job_name}`,
+        jobDetails.employer_account_id,
+        `New job application received for "${jobDetails.job_name}" position.`,
         payload.userId
       ]);
     }

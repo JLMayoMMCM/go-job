@@ -63,6 +63,16 @@ export default function EmployeeDashboard() {
         const statsData = await statsResponse.json();
         setStats(statsData);
       }
+
+      // Load notification count
+      const notificationsResponse = await fetch('/api/employee/notifications', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (notificationsResponse.ok) {
+        const notificationsData = await notificationsResponse.json();
+        const unreadCount = notificationsData.filter(n => !n.is_read).length;
+        setStats(prev => ({ ...prev, unreadNotifications: unreadCount }));
+      }
     } catch (error) {
       console.error('Error loading employee data:', error);
     }
@@ -145,9 +155,9 @@ export default function EmployeeDashboard() {
               >
                 <div className="text-3xl mb-2">🔔</div>
                 <div className="font-semibold">Notifications</div>
-                {stats.pendingApplications > 0 && (
+                {stats.unreadNotifications > 0 && (
                   <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full mt-2 inline-block">
-                    {stats.pendingApplications}
+                    {stats.unreadNotifications}
                   </div>
                 )}
               </button>
@@ -218,8 +228,14 @@ export default function EmployeeDashboard() {
                           View
                         </button>
                         <button
-                          onClick={() => router.push(`/employee/job-requests?job=${job.job_id}`)}
+                          onClick={() => router.push(`/employee/edit-job/${job.job_id}`)}
                           className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => router.push(`/employee/job-requests?job=${job.job_id}`)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
                         >
                           Applications
                         </button>

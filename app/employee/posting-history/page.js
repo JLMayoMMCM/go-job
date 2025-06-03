@@ -104,6 +104,32 @@ export default function PostingHistoryPage() {
     }
   };
 
+  const handleDeleteJob = async (jobId, jobName) => {
+    if (!confirm(`Are you sure you want to delete the job "${jobName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/employee/jobs/${jobId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setSuccess('Job deleted successfully');
+        await loadJobs(token);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to delete job');
+      }
+    } catch (error) {
+      setError('Network error. Please try again.');
+    }
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
   }
@@ -185,77 +211,74 @@ export default function PostingHistoryPage() {
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <div key={job.job_id} className="bg-white rounded-lg shadow-md p-6">
+              <div key={job.job_id} className="border border-gray-200 rounded-lg p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-gray-900">{job.job_name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          job.job_is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {job.job_is_active ? 'Active' : 'Inactive'}
-                        </span>
-                        <button
-                          onClick={() => toggleJobStatus(job.job_id, job.job_is_active)}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                            job.job_is_active 
-                              ? 'bg-red-600 hover:bg-red-700 text-white' 
-                              : 'bg-green-600 hover:bg-green-700 text-white'
-                          }`}
-                        >
-                          {job.job_is_active ? 'Deactivate' : 'Activate'}
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Location</span>
-                        <p className="text-gray-900">{job.job_location}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Type</span>
-                        <p className="text-gray-900">{job.job_type_name}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Applications</span>
-                        <p className="text-gray-900">{job.application_count || 0} received</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Posted</span>
-                        <p className="text-gray-900">{new Date(job.job_posted_date).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-
-                    {job.job_salary && (
-                      <div className="mb-4">
-                        <span className="text-sm font-medium text-gray-500">Salary: </span>
-                        <span className="text-green-600 font-medium">₱{parseFloat(job.job_salary).toLocaleString()}</span>
-                      </div>
-                    )}
-
-                    <p className="text-gray-700 mb-4">{job.job_description?.substring(0, 200)}...</p>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => router.push(`/jobs/${job.job_id}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors"
-                      >
-                        View Details
-                      </button>
-                      <button
-                        onClick={() => router.push(`/employee/job-requests?job=${job.job_id}`)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition-colors"
-                      >
-                        View Applications ({job.application_count || 0})
-                      </button>
+                    <h4 className="font-semibold text-gray-900 text-lg">{job.job_name}</h4>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <span>📍 {job.job_location}</span>
+                      <span>💼 {job.job_type_name}</span>
+                      <span>📅 {new Date(job.job_posted_date).toLocaleDateString()}</span>
                       {job.job_closing_date && (
-                        <div className="ml-auto text-sm text-gray-500">
-                          Closes: {new Date(job.job_closing_date).toLocaleDateString()}
-                        </div>
+                        <span>⏰ Closes: {new Date(job.job_closing_date).toLocaleDateString()}</span>
                       )}
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      job.job_is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {job.job_is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+
+                {job.job_salary && (
+                  <div className="mb-3">
+                    <span className="text-green-600 font-medium">
+                      ₱{parseFloat(job.job_salary).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                  {job.job_description?.substring(0, 200)}...
+                </p>
+
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-500">
+                    <span>{job.application_count || 0} applications received</span>
+                    {job.pending_applications > 0 && (
+                      <span className="ml-4 bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+                        {job.pending_applications} pending
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => router.push(`/jobs/${job.job_id}`)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => router.push(`/employee/edit-job/${job.job_id}`)}
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => router.push(`/employee/job-requests?job=${job.job_id}`)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Applications
+                    </button>
+                    <button
+                      onClick={() => handleDeleteJob(job.job_id, job.job_name)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
