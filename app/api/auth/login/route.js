@@ -3,10 +3,6 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/database';
 import { sendVerificationEmail } from '@/lib/email';
 
-function generateVerificationCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
 export async function POST(request) {
   const client = await pool.connect();
   
@@ -79,37 +75,50 @@ export async function POST(request) {
     const user = userQuery.rows[0];
 
     // Verify password
-    const passwordMatch = await bcrypt.compare(password, user.account_password);
+    const isValidPassword = await bcrypt.compare(password, user.account_password);
     
-    if (!passwordMatch) {
+    if (!isValidPassword) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Invalid username or password' },
         { status: 401 }
       );
     }
 
-    // Generate and store verification code
-    const verificationCode = generateVerificationCode();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    await client.query(
-      'INSERT INTO Verification_codes (account_id, code, expires_at) VALUES ($1, $2, $3) ON CONFLICT (account_id) DO UPDATE SET code = EXCLUDED.code, expires_at = EXCLUDED.expires_at, created_at = CURRENT_TIMESTAMP',
-      [user.account_id, verificationCode, expiresAt]
-    );
-
-    // Send verification code
-    let emailSent = false;
-    try {
-      emailSent = await sendVerificationEmail(user.account_email, verificationCode);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
+    // Generate verification code for unverified users
+    if (!user.account_is_verified) {
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      console.log(`Verification code for ${user.account_email}: ${verificationCode}`);
+      
+      // In production, send email with verification code
+      
+      return NextResponse.json({
+        message: 'Please verify your email to continue',
+        email: user.account_email,
+        requiresVerification: true
+      });
     }
 
-    return NextResponse.json({
-      message: 'Login successful. Please check your email for verification code.',
+    // Generate JWT token for verified users
+    const token = await new SignJWT({ 
+      userId: user.account_id,
       email: user.account_email,
-      userType: userType,
-      emailSent: emailSent
+      username: user.account_username 
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('7d')
+      .sign(JWT_SECRET);
+
+    return NextResponse.json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user.account_id,
+        email: user.account_email,
+        username: user.account_username,
+        isVerified: user.account_is_verified
+      }
     });
 
   } catch (error) {

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/DashboardHeader';
 import './profile.css';
@@ -11,10 +11,12 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [profilePhoto, setProfilePhoto] = useState(null);
+  const [previewPhotoUrl, setPreviewPhotoUrl] = useState(null);
   const [resume, setResume] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,14 +38,12 @@ export default function ProfilePage() {
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
             middleName: userData.middleName || '',
-            email: userData.email || '',
-            username: userData.username || '',
             phone: userData.phone || '',
             premiseName: userData.address?.premise || '',
             streetName: userData.address?.street || '',
             barangayName: userData.address?.barangay || '',
             cityName: userData.address?.city || '',
-            nationality: userData.nationality || ''
+            nationality: userData.nationality || 'Filipino'
           });
         } else {
           router.push('/Login');
@@ -68,16 +68,33 @@ export default function ProfilePage() {
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        setError('Profile photo must be less than 10MB');
+        return;
+      }
       setProfilePhoto(file);
+      setPreviewPhotoUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handlePhotoClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
   const handleResumeUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        setError('Resume file must be less than 10MB');
+        return;
+      }
+      if (file.type !== 'application/pdf') {
+        setError('Please upload a PDF file');
+        return;
+      }
       setResume(file);
-    } else {
-      setError('Please upload a PDF file');
     }
   };
 
@@ -112,8 +129,19 @@ export default function ProfilePage() {
       if (response.ok) {
         setSuccess('Profile updated successfully');
         setIsEditing(false);
+        setProfilePhoto(null);
+        setPreviewPhotoUrl(null);
+        setResume(null);
+        
         // Refresh user data
-        window.location.reload();
+        const updatedResponse = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (updatedResponse.ok) {
+          const updatedUser = await updatedResponse.json();
+          setUser(updatedUser);
+        }
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to update profile');
@@ -212,13 +240,15 @@ export default function ProfilePage() {
             <div className="profile-section">
               <h3>Profile Photo</h3>
               <div className="photo-upload-section">
-                <div className="current-photo">
-                  {user?.profilePhoto ? (
-                    <img 
-                      src={`data:image/jpeg;base64,${user.profilePhoto}`} 
-                      alt="Profile" 
-                      className="profile-photo"
-                    />
+                <div 
+                  className="current-photo" 
+                  onClick={handlePhotoClick}
+                  style={{ cursor: isEditing ? 'pointer' : 'default' }}
+                >
+                  {previewPhotoUrl ? (
+                    <img src={previewPhotoUrl} alt="Profile Preview" className="profile-photo" />
+                  ) : user?.profilePhoto ? (
+                    <img src={user.profilePhoto} alt="Profile" className="profile-photo" />
                   ) : (
                     <div className="default-avatar">
                       {user?.firstName?.charAt(0) || 'U'}
@@ -229,14 +259,16 @@ export default function ProfilePage() {
                   <div className="photo-upload">
                     <input
                       type="file"
-                      id="profilePhoto"
+                      ref={fileInputRef}
                       accept="image/*"
                       onChange={handlePhotoUpload}
                       className="file-input"
+                      style={{ display: 'none' }}
                     />
-                    <label htmlFor="profilePhoto" className="file-label">
+                    <label htmlFor="profilePhoto" className="file-label" onClick={handlePhotoClick}>
                       Choose Photo
                     </label>
+                    <div className="text-sm text-gray-600 mt-1">Maximum file size: 10MB</div>
                   </div>
                 )}
               </div>

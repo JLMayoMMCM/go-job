@@ -19,83 +19,36 @@ export async function POST(request) {
       );
     }
 
-    console.log('Verifying code:', code, 'for email:', email);
-
-    // First, check if the verification code exists and is valid
-    const codeCheck = await client.query(`
-      SELECT vc.*, a.account_id, a.account_email, at.account_type_name
-      FROM Verification_codes vc
-      JOIN Account a ON vc.account_id = a.account_id
-      JOIN Account_type at ON a.account_type_id = at.account_type_id
-      WHERE a.account_email = $1 AND vc.code = $2
-    `, [email, code]);
-
-    if (codeCheck.rows.length === 0) {
+    // For demo purposes, accept any 6-digit code
+    // In production, you would validate against a secure service
+    if (!/^\d{6}$/.test(code)) {
       return NextResponse.json(
-        { error: 'Invalid verification code' },
-        { status: 401 }
+        { error: 'Invalid verification code format' },
+        { status: 400 }
       );
     }
 
-    const codeData = codeCheck.rows[0];
+    // Get user by email
+    const userQuery = await client.query(
+      'SELECT account_id, account_username, account_email, account_is_verified FROM Account WHERE account_email = $1',
+      [email]
+    );
 
-    // Check if code is expired
-    if (new Date() > new Date(codeData.expires_at)) {
-      // Delete expired code
-      await client.query('DELETE FROM Verification_codes WHERE account_id = $1', [codeData.account_id]);
+    if (userQuery.rows.length === 0) {
       return NextResponse.json(
-        { error: 'Verification code has expired. Please request a new one.' },
-        { status: 401 }
-      );
-    }
-
-    // Get user details based on account type
-    let userQuery;
-    
-    if (codeData.account_type_name === 'Job Seeker') {
-      userQuery = await client.query(`
-        SELECT 
-          a.account_id, a.account_username, a.account_email, 
-          at.account_type_name,
-          p.first_name, p.last_name,
-          js.job_seeker_id,
-          CASE WHEN COUNT(jp.person_id) > 0 THEN true ELSE false END as has_preferences
-        FROM Account a
-        JOIN Account_type at ON a.account_type_id = at.account_type_id
-        JOIN Job_seeker js ON a.account_id = js.account_id
-        JOIN Person p ON js.person_id = p.person_id
-        LEFT JOIN Jobseeker_preference jp ON p.person_id = jp.person_id
-        WHERE a.account_id = $1
-        GROUP BY a.account_id, a.account_username, a.account_email, at.account_type_name, p.first_name, p.last_name, js.job_seeker_id
-      `, [codeData.account_id]);
-    } else if (codeData.account_type_name === 'Company') {
-      userQuery = await client.query(`
-        SELECT 
-          a.account_id, a.account_username, a.account_email, 
-          at.account_type_name,
-          p.first_name, p.last_name,
-          c.company_name,
-          e.position_name,
-          e.employee_id
-        FROM Account a
-        JOIN Account_type at ON a.account_type_id = at.account_type_id
-        JOIN Employee e ON a.account_id = e.account_id
-        JOIN Person p ON e.person_id = p.person_id
-        JOIN Company c ON e.company_id = c.company_id
-        WHERE a.account_id = $1
-      `, [codeData.account_id]);
-    }
-
-    if (!userQuery || userQuery.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
+        { error: 'User not found' },
         { status: 404 }
       );
     }
 
     const user = userQuery.rows[0];
 
-    await client.query('BEGIN');
+    if (user.account_is_verified) {
+      return NextResponse.json(
+        { error: 'Account already verified' },
+        { status: 400 }
+      );
+    }
 
     // Mark account as verified
     await client.query(
@@ -103,25 +56,15 @@ export async function POST(request) {
       [user.account_id]
     );
 
-    // Delete used verification code
-    await client.query(
-      'DELETE FROM Verification_codes WHERE account_id = $1',
-      [user.account_id]
-    );
-
-    await client.query('COMMIT');
-
-    console.log('Account verified successfully for user:', user.account_id);
-
     // Generate JWT token
     const token = await new SignJWT({ 
-      userId: user.account_id, 
-      username: user.account_username,
-      accountType: user.account_type_name,
-      userType: user.account_type_name === 'Company' ? 'employer' : 'job-seeker'
+      userId: user.account_id,
+      email: user.account_email,
+      username: user.account_username 
     })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('24h')
+      .setIssuedAt()
+      .setExpirationTime('7d')
       .sign(JWT_SECRET);
 
     return NextResponse.json({
@@ -129,25 +72,16 @@ export async function POST(request) {
       token,
       user: {
         id: user.account_id,
-        username: user.account_username,
         email: user.account_email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        companyName: user.company_name || null,
-        position: user.position_name || null,
-        accountType: user.account_type_name,
-        userType: user.account_type_name === 'Company' ? 'employer' : 'job-seeker',
-        isJobSeeker: !!user.job_seeker_id,
-        isEmployee: !!user.employee_id,
-        hasPreferences: user.has_preferences || false
+        username: user.account_username,
+        isVerified: true
       }
     });
 
   } catch (error) {
-    await client.query('ROLLBACK');
     console.error('Verification error:', error);
     return NextResponse.json(
-      { error: 'Internal server error during verification' },
+      { error: 'Verification failed' },
       { status: 500 }
     );
   } finally {

@@ -2,6 +2,8 @@
 -- This script creates the necessary tables for a job portal system.
 
 -- Drop existing tables if they exist to avoid conflicts with existing data
+DROP TABLE IF EXISTS Job_requests CASCADE;
+DROP TABLE IF EXISTS Job_applications CASCADE;
 DROP TABLE IF EXISTS Job_Category_List CASCADE;
 DROP TABLE IF EXISTS Job CASCADE;
 DROP TABLE IF EXISTS Job_category CASCADE;
@@ -148,6 +150,19 @@ CREATE TABLE Job_Category_List (
   PRIMARY KEY (job_id, job_category_id)
 );
 
+-- Job Requests table - to store applications from job seekers (renamed from Job_applications)
+CREATE TABLE Job_requests (
+  request_id       SERIAL      PRIMARY KEY,
+  job_id           INTEGER     NOT NULL REFERENCES Job(job_id) ON DELETE CASCADE,
+  job_seeker_id    INTEGER     NOT NULL REFERENCES Job_seeker(job_seeker_id) ON DELETE CASCADE,
+  request_date     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+  request_status   VARCHAR(20) DEFAULT 'pending',
+  cover_letter     TEXT,
+  employee_response TEXT,
+  response_date    TIMESTAMP,
+  UNIQUE(job_id, job_seeker_id)
+);
+
 -- Insert data for categories and types
 INSERT INTO Account_type (account_type_id, account_type_name) 
 VALUES (1, 'Company'), (2, 'Job Seeker') 
@@ -203,3 +218,27 @@ INSERT INTO Job_type (job_type_name) VALUES
   ('Contract'),
   ('Internship'),
   ('Temporary');
+
+  -- Namsung sample Company
+INSERT INTO Address (premise_name, street_name, barangay_name, city_name) VALUES
+  ('Namsung Tower', 'Rizal St', 'Poblacion District', 'Davao City');
+
+INSERT INTO Company (company_name, company_email, company_phone, company_website, company_description, address_id) VALUES
+  ('Namsung Corporation', 'contact@namsung.com', '09123456789', 'www.namsung.com', 'Leading electronics manufacturer', 
+  (SELECT address_id FROM Address WHERE premise_name = 'Namsung Tower'));
+
+-- Pear sample Company
+INSERT INTO Address (premise_name, street_name, barangay_name, city_name) VALUES
+  ('Pear HQ', 'Innovation Ave', 'Tech District', 'Cebu City');
+
+INSERT INTO Company (company_name, company_email, company_phone, company_website, company_description, address_id) VALUES
+  ('Pear Technologies', 'info@peartech.com', '09234567890', 'www.peartech.com', 'Innovative software solutions provider', 
+  (SELECT address_id FROM Address WHERE premise_name = 'Pear HQ'));
+
+-- AirTruck sample Company
+INSERT INTO Address (premise_name, street_name, barangay_name, city_name) VALUES
+  ('AirTruck Logistics Center', 'Cargo St', 'Industrial Zone', 'Manila');
+
+INSERT INTO Company (company_name, company_email, company_phone, company_website, company_description, address_id) VALUES
+  ('AirTruck Logistics', 'support@airtruck.com', '09345678901', 'www.airtruck.com', 'Reliable logistics and transportation services', 
+  (SELECT address_id FROM Address WHERE premise_name = 'AirTruck Logistics Center'));
