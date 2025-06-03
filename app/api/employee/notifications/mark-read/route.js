@@ -17,28 +17,45 @@ export async function POST(request) {
         { error: 'Authorization token required' },
         { status: 401 }
       );
-    }
-
-    const token = authHeader.split(' ')[1];
+    }    const token = authHeader.split(' ')[1];
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    const { notificationId } = await request.json();
+    const { notificationId, notificationType } = await request.json();
 
     if (!notificationId) {
       return NextResponse.json(
         { error: 'Notification ID is required' },
         { status: 400 }
       );
+    }    // Verify user is an employee
+    const employeeQuery = await client.query(
+      'SELECT employee_id FROM Employee WHERE account_id = $1',
+      [payload.userId]
+    );
+
+    if (employeeQuery.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'Only employees can access this endpoint' },
+        { status: 403 }
+      );
     }
 
-    // Mark notification as read
-    const result = await client.query(`
-      UPDATE Notifications 
-      SET is_read = true 
-      WHERE notification_id = $1 AND account_id = $2
-      RETURNING notification_id
-    `, [notificationId, payload.userId]);
+    // Employees can only mark company notifications as read
+    if (notificationType !== 'company') {
+      return NextResponse.json(
+        { error: 'Employees can only mark company notifications as read' },
+        { status: 400 }
+      );
+    }
 
-    if (result.rows.length === 0) {
+    const employee_id = employeeQuery.rows[0].employee_id;
+
+    const result = await client.query(`
+      INSERT INTO employee_company_notification_read (employee_id, company_notification_id, is_read)
+      VALUES ($1, $2, true)
+      ON CONFLICT (employee_id, company_notification_id)
+      DO UPDATE SET is_read = true
+      RETURNING employee_id
+    `, [employee_id, notificationId]);    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: 'Notification not found or unauthorized' },
         { status: 404 }

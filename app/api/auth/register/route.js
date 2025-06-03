@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 import pool from '@/lib/database';
-import { sendVerificationEmail } from '@/lib/email';
 
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -99,17 +98,30 @@ export async function POST(request) {
 
     // Validate company exists if employee
     if (userType === 'employee') {
+      console.log('Validating company ID:', companyId);
+      
+      // First, let's see what companies exist
+      const allCompanies = await client.query('SELECT company_id, company_name FROM Company ORDER BY company_id');
+      console.log('Available companies:', allCompanies.rows);
+      
       const companyCheck = await client.query(
         'SELECT company_id, company_name FROM Company WHERE company_id = $1',
         [companyId]
       );
 
+      console.log('Company check result:', companyCheck.rows);
+
       if (companyCheck.rows.length === 0) {
         return NextResponse.json(
-          { error: 'Invalid company ID. Company does not exist.' },
+          { 
+            error: `Invalid company ID: ${companyId}. Company does not exist.`,
+            availableCompanies: allCompanies.rows.map(c => ({ id: c.company_id, name: c.company_name }))
+          },
           { status: 400 }
         );
       }
+      
+      console.log('Company validation passed for:', companyCheck.rows[0].company_name);
     }
 
     await client.query('BEGIN');
@@ -269,25 +281,36 @@ export async function POST(request) {
     );
 
     await client.query('COMMIT');
-    console.log('Transaction committed successfully');
-
-    // Send verification email
+    console.log('Transaction committed successfully');    // Send verification email via API
     let emailSent = false;
+    let emailError = null;
     try {
-      emailSent = await sendVerificationEmail(email, verificationCode);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email/send-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: verificationCode })
+      });
+      const data = await res.json();
+      emailSent = data.success;
+      if (!data.success) emailError = data.error;
+    } catch (emailSendError) {
+      emailError = emailSendError.message;
     }
     
-    if (!emailSent) {
-      console.warn('Failed to send verification email, but user was created successfully');
-    }
+    // Provide appropriate response based on email status
+    const responseMessage = emailError && emailError.includes('Email credentials not configured')
+      ? 'Registration successful! Email verification is currently disabled (development mode).'
+      : emailSent 
+        ? 'Registration successful! Please check your email for verification.'
+        : 'Registration successful! However, verification email could not be sent. Please contact support.';
 
     return NextResponse.json({
-      message: 'Registration successful! Please check your email for verification.',
+      message: responseMessage,
       userId: accountId,
       userType: userType,
-      emailSent: emailSent
+      emailSent: emailSent,
+      emailSimulated: emailError && emailError.includes('Email credentials not configured'),
+      verificationCode: process.env.NODE_ENV === 'development' && emailError ? verificationCode : undefined
     }, { status: 201 });
 
   } catch (error) {

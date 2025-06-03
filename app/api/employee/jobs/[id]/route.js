@@ -99,11 +99,9 @@ export async function PUT(request, { params }) {
       jobIsActive
     } = await request.json();
 
-    await client.query('BEGIN');
-
-    // Verify job belongs to the employee's company
+    await client.query('BEGIN');    // Verify job belongs to the employee's company and get company_id
     const jobCheck = await client.query(`
-      SELECT j.job_id
+      SELECT j.job_id, e.company_id
       FROM Job j
       JOIN Employee e ON j.company_id = e.company_id
       WHERE j.job_id = $1 AND e.account_id = $2
@@ -116,6 +114,8 @@ export async function PUT(request, { params }) {
         { status: 404 }
       );
     }
+
+    const companyId = jobCheck.rows[0].company_id;
 
     // Update job details
     const updateJobQuery = `
@@ -168,15 +168,14 @@ export async function PUT(request, { params }) {
         'INSERT INTO Job_Category_List (job_id, job_category_id) VALUES ($1, $2)',
         [jobId, categoryId]
       );
-    }
-
-    // Send notification about job update
+    }    // Send notification to all employees of the company about job update
     await client.query(`
-      INSERT INTO Notifications (account_id, notification_text)
-      VALUES ($1, $2)
+      INSERT INTO company_notifications (company_id, notification_text, sender_account_id)
+      VALUES ($1, $2, $3)
     `, [
-      payload.userId,
-      `Job "${jobName}" has been successfully updated.`
+      companyId,
+      `Job "${jobName}" has been successfully updated.`,
+      payload.userId
     ]);
 
     await client.query('COMMIT');
@@ -214,11 +213,9 @@ export async function DELETE(request, { params }) {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     const jobId = params.id;
 
-    await client.query('BEGIN');
-
-    // Verify job belongs to the employee's company and get job name
+    await client.query('BEGIN');    // Verify job belongs to the employee's company and get job details
     const jobCheck = await client.query(`
-      SELECT j.job_id, j.job_name
+      SELECT j.job_id, j.job_name, e.company_id
       FROM Job j
       JOIN Employee e ON j.company_id = e.company_id
       WHERE j.job_id = $1 AND e.account_id = $2
@@ -232,18 +229,17 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const jobName = jobCheck.rows[0].job_name;
+    const { job_name: jobName, company_id: companyId } = jobCheck.rows[0];
 
     // Delete job (CASCADE will handle related records)
-    await client.query('DELETE FROM Job WHERE job_id = $1', [jobId]);
-
-    // Send notification about job deletion
+    await client.query('DELETE FROM Job WHERE job_id = $1', [jobId]);    // Send notification to all employees of the company about job deletion
     await client.query(`
-      INSERT INTO Notifications (account_id, notification_text)
-      VALUES ($1, $2)
+      INSERT INTO company_notifications (company_id, notification_text, sender_account_id)
+      VALUES ($1, $2, $3)
     `, [
-      payload.userId,
-      `Job "${jobName}" has been deleted successfully.`
+      companyId,
+      `Job "${jobName}" has been deleted successfully.`,
+      payload.userId
     ]);
 
     await client.query('COMMIT');

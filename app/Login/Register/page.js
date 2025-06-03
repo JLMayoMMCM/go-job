@@ -32,19 +32,31 @@ export default function RegisterPage() {
     companyBarangayName: '',
     companyCityName: '',
     nationalityName: 'Filipino'
-  });
-  const [companies, setCompanies] = useState([]);
+  });  const [companies, setCompanies] = useState([]);
+  const [nationalities, setNationalities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showVerificationOptions, setShowVerificationOptions] = useState(false);
-
-  // Fetch companies when user type is employer
+  // Fetch companies when user type is employer and nationalities on mount
   useEffect(() => {
+    loadNationalities();
     if (formData.userType === 'employer') {
       fetchCompanies();
     }
   }, [formData.userType]);
+
+  const loadNationalities = async () => {
+    try {
+      const response = await fetch('/api/nationalities');
+      if (response.ok) {
+        const data = await response.json();
+        setNationalities(data);
+      }
+    } catch (error) {
+      console.error('Error loading nationalities:', error);
+    }
+  };
 
   const fetchCompanies = async () => {
     try {
@@ -258,9 +270,7 @@ export default function RegisterPage() {
                 placeholder="Optional"
               />
             </div>
-          </div>
-
-          <div className="input-group">
+          </div>          <div className="input-group">
             <label htmlFor="nationalityName">NATIONALITY</label>
             <select
               id="nationalityName"
@@ -269,13 +279,11 @@ export default function RegisterPage() {
               onChange={handleInputChange}
               required
             >
-              <option value="Filipino">Filipino</option>
-              <option value="American">American</option>
-              <option value="British">British</option>
-              <option value="Chinese">Chinese</option>
-              <option value="Japanese">Japanese</option>
-              <option value="Korean">Korean</option>
-              <option value="Other">Other</option>
+              {nationalities.map((nationality) => (
+                <option key={nationality.nationality_id} value={nationality.nationality_name}>
+                  {nationality.nationality_name}
+                </option>
+              ))}
             </select>
           </div>
 

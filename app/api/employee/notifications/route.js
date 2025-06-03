@@ -20,23 +20,43 @@ export async function GET(request) {
     }
 
     const token = authHeader.split(' ')[1];
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, JWT_SECRET);    // First, check if user is an employee and get their details
+    const employeeQuery = await client.query(
+      'SELECT employee_id, company_id FROM Employee WHERE account_id = $1',
+      [payload.userId]
+    );    // Check if user is an employee - if not, return empty array
+    if (employeeQuery.rows.length === 0) {
+      return NextResponse.json([]);
+    }
 
-    // Get notifications for the employee
-    const notificationsQuery = await client.query(`
+    const { employee_id, company_id } = employeeQuery.rows[0];
+    
+    // Employees only get company notifications, not individual notifications
+    const companyNotificationsQuery = await client.query(`
       SELECT 
-        n.notification_id,
-        n.notification_text,
-        n.notification_date,
-        n.is_read,
-        sender_acc.account_username as sender_name
-      FROM Notifications n
-      LEFT JOIN Account sender_acc ON n.sender_account_id = sender_acc.account_id
-      WHERE n.account_id = $1
-      ORDER BY n.notification_date DESC
-    `, [payload.userId]);
+        cn.company_notification_id as notification_id,
+        cn.notification_text,
+        cn.notification_date,
+        COALESCE(ecnr.is_read, false) as is_read,
+        CASE 
+          WHEN p.first_name IS NOT NULL THEN CONCAT(p.first_name, ' ', p.last_name)
+          ELSE 'System'
+        END as sender_name,
+        'company' as notification_type
+      FROM company_notifications cn
+      LEFT JOIN employee_company_notification_read ecnr 
+        ON cn.company_notification_id = ecnr.company_notification_id 
+        AND ecnr.employee_id = $1
+      LEFT JOIN account a ON cn.sender_account_id = a.account_id
+      LEFT JOIN job_seeker js ON a.account_id = js.account_id
+      LEFT JOIN person p ON js.person_id = p.person_id
+      WHERE cn.company_id = $2
+      ORDER BY cn.notification_date DESC
+    `, [employee_id, company_id]);
 
-    return NextResponse.json(notificationsQuery.rows);
+    const allNotifications = companyNotificationsQuery.rows;
+
+    return NextResponse.json(allNotifications);
 
   } catch (error) {
     console.error('Error fetching employee notifications:', error);

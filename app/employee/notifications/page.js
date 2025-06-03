@@ -89,8 +89,7 @@ export default function NotificationsPage() {
 
     setFilteredNotifications(filtered);
   };
-
-  const markAsRead = async (notificationId) => {
+  const markAsRead = async (notificationId, notificationType = 'individual') => {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch('/api/employee/notifications/mark-read', {
@@ -99,7 +98,7 @@ export default function NotificationsPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ notificationId })
+        body: JSON.stringify({ notificationId, notificationType })
       });
 
       if (response.ok) {
@@ -298,7 +297,7 @@ export default function NotificationsPage() {
                         ? 'border-gray-300 opacity-75' 
                         : 'border-blue-500'
                     }`}
-                    onClick={() => markAsRead(notification.notification_id)}
+                    onClick={() => markAsRead(notification.notification_id, notification.notification_type)}
                   >
                     <div className="flex items-start gap-4">
                       <div className="text-3xl">
@@ -341,7 +340,7 @@ export default function NotificationsPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            markAsRead(notification.notification_id);
+                            markAsRead(notification.notification_id, notification.notification_type);
                           }}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >

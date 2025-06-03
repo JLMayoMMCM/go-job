@@ -52,10 +52,8 @@ export default function JobPreferencesPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ categoryIds: selectedCategories })
-      });
-
-      if (response.ok) {
-        router.push('/dashboard');
+      });      if (response.ok) {
+        router.push('/jobseeker/dashboard');
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to save preferences');

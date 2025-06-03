@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-here'
 );
 
-export async function POST(request) {
+export async function PUT(request) {
   const client = await pool.connect();
   
   try {
@@ -17,8 +17,12 @@ export async function POST(request) {
         { error: 'Authorization token required' },
         { status: 401 }
       );
-    }    const token = authHeader.split(' ')[1];
-    const { payload } = await jwtVerify(token, JWT_SECRET);    // Verify user is an employee
+    }
+
+    const token = authHeader.split(' ')[1];
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+
+    // Verify user is an employee and get their company_id
     const employeeQuery = await client.query(
       'SELECT employee_id, company_id FROM Employee WHERE account_id = $1',
       [payload.userId]
@@ -26,22 +30,22 @@ export async function POST(request) {
 
     if (employeeQuery.rows.length === 0) {
       return NextResponse.json(
-        { error: 'Only employees can access this endpoint' },
+        { error: 'Only employees can mark notifications as read' },
         { status: 403 }
       );
     }
 
+    const { employee_id, company_id } = employeeQuery.rows[0];
+
     await client.query('BEGIN');
 
-    const { employee_id, company_id } = employeeQuery.rows[0];
-    
     // Get all company notification IDs for this company
     const notificationIdsQuery = await client.query(
       'SELECT company_notification_id FROM company_notifications WHERE company_id = $1',
       [company_id]
     );
 
-    // Mark all company notifications as read for this employee
+    // Mark all notifications as read for this employee
     for (const row of notificationIdsQuery.rows) {
       await client.query(`
         INSERT INTO employee_company_notification_read (employee_id, company_notification_id, is_read)
@@ -53,14 +57,16 @@ export async function POST(request) {
 
     await client.query('COMMIT');
 
-    return NextResponse.json({
-      message: 'All notifications marked as read'
+    return NextResponse.json({ 
+      message: 'All notifications marked as read',
+      count: notificationIdsQuery.rows.length
     });
+
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Error marking all notifications as read:', error);
     return NextResponse.json(
-      { error: 'Failed to mark all notifications as read' },
+      { error: 'Failed to mark notifications as read' },
       { status: 500 }
     );
   } finally {

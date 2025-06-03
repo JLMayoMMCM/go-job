@@ -32,15 +32,22 @@ export default function VerifyPage() {
       });
 
       const data = await response.json();
-      
-      if (response.ok) {
+        if (response.ok) {
         // Store token
         localStorage.setItem('authToken', data.token);
         
-        // Check if job seeker needs to set preferences
-        if (data.user.isJobSeeker && !data.user.hasPreferences) {
-          router.push('/job-preferences');
+        // Route based on account type
+        if (data.user.isJobSeeker) {
+          // Check if job seeker needs to set preferences
+          if (!data.user.hasPreferences) {
+            router.push('/job-preferences');
+          } else {
+            router.push('/jobseeker/dashboard');
+          }
+        } else if (data.user.isEmployee) {
+          router.push('/employee/dashboard');
         } else {
+          // Fallback to general dashboard
           router.push('/dashboard');
         }
       } else {
@@ -52,9 +59,9 @@ export default function VerifyPage() {
       setIsLoading(false);
     }
   };
-
   const handleResendCode = async () => {
     setIsResending(true);
+    setError('');
     try {
       const response = await fetch('/api/auth/resend-code', {
         method: 'POST',
@@ -62,8 +69,18 @@ export default function VerifyPage() {
         body: JSON.stringify({ email })
       });
 
+      const data = await response.json();
+      
       if (response.ok) {
-        alert('Verification code sent!');
+        if (data.emailSimulated && data.code) {
+          alert(`Verification code: ${data.code}\n\n(Email service is in simulation mode - in production, this would be sent to your email)`);
+        } else if (data.emailSent) {
+          alert('Verification code sent! Please check your email.');
+        } else {
+          alert('Verification code generated but email could not be sent. Please contact support.');
+        }
+      } else {
+        setError(data.error || 'Failed to resend code');
       }
     } catch (error) {
       setError('Failed to resend code');

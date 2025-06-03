@@ -95,15 +95,14 @@ export async function POST(request) {
         'INSERT INTO Job_Category_List (job_id, job_category_id) VALUES ($1, $2)',
         [jobResult.rows[0].job_id, categoryId]
       );
-    }
-
-    // Send notification to the employee about successful job creation
+    }    // Send notification to all employees of the company about successful job creation
     await client.query(`
-      INSERT INTO Notifications (account_id, notification_text)
-      VALUES ($1, $2)
+      INSERT INTO company_notifications (company_id, notification_text, sender_account_id)
+      VALUES ($1, $2, $3)
     `, [
-      payload.userId,
-      `Job "${jobName}" has been successfully created and is now active for applications.`
+      companyId,
+      `Job "${jobName}" has been successfully created and is now active for applications.`,
+      payload.userId
     ]);
 
     await client.query('COMMIT');

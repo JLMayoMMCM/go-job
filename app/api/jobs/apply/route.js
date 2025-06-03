@@ -91,28 +91,34 @@ export async function POST(request) {
       INSERT INTO Job_requests (job_id, job_seeker_id, cover_letter)
       VALUES ($1, $2, $3)
       RETURNING request_id
-    `, [jobId, jobSeekerId, coverLetter]);
-
-    // Get job and company details for notification
+    `, [jobId, jobSeekerId, coverLetter]);    // Get job and company details for notification
     const jobDetailsQuery = await client.query(`
-      SELECT j.job_name, c.company_name, e.account_id as employer_account_id
+      SELECT j.job_name, c.company_name, c.company_id, js.person_id
       FROM Job j
       JOIN Company c ON j.company_id = c.company_id
-      JOIN Employee e ON c.company_id = e.company_id
+      JOIN Job_seeker js ON js.job_seeker_id = $2
       WHERE j.job_id = $1
-      LIMIT 1
-    `, [jobId]);
+    `, [jobId, jobSeekerId]);
 
     if (jobDetailsQuery.rows.length > 0) {
       const jobDetails = jobDetailsQuery.rows[0];
       
-      // Send notification to employer
+      // Get job seeker name for notification
+      const jobSeekerNameQuery = await client.query(`
+        SELECT first_name, last_name FROM Person WHERE person_id = $1
+      `, [jobDetails.person_id]);
+      
+      const jobSeekerName = jobSeekerNameQuery.rows.length > 0 
+        ? `${jobSeekerNameQuery.rows[0].first_name} ${jobSeekerNameQuery.rows[0].last_name}`
+        : 'A job seeker';
+      
+      // Send notification to company (all employees will see this)
       await client.query(`
-        INSERT INTO Notifications (account_id, notification_text, sender_account_id)
+        INSERT INTO company_notifications (company_id, notification_text, sender_account_id)
         VALUES ($1, $2, $3)
       `, [
-        jobDetails.employer_account_id,
-        `New job application received for "${jobDetails.job_name}" position.`,
+        jobDetails.company_id,
+        `${jobSeekerName} has applied for the "${jobDetails.job_name}" position.`,
         payload.userId
       ]);
     }
