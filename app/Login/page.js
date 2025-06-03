@@ -26,8 +26,20 @@ export default function LoginPage() {
       const data = await response.json();
       
       if (response.ok) {
-        // Redirect to email verification page
-        router.push(`/Login/verify?email=${encodeURIComponent(data.email)}`);
+        if (data.requiresVerification) {
+          // Redirect to email verification page
+          router.push(`/Login/verify?email=${encodeURIComponent(data.email)}`);
+        } else {
+          // User is verified, store token and redirect to dashboard
+          localStorage.setItem('authToken', data.token);
+          
+          // Redirect based on user type
+          if (userType === 'employee') {
+            router.push('/employee/dashboard');
+          } else {
+            router.push('/jobseeker/dashboard');
+          }
+        }
       } else {
         setError(data.error || 'Login failed');
       }

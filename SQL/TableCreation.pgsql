@@ -163,6 +163,15 @@ CREATE TABLE Job_requests (
   UNIQUE(job_id, job_seeker_id)
 );
 
+-- Saved Jobs table - to store jobs saved by job seekers
+CREATE TABLE Saved_jobs (
+  saved_job_id SERIAL PRIMARY KEY,
+  job_id INTEGER NOT NULL REFERENCES Job(job_id) ON DELETE CASCADE,
+  job_seeker_id INTEGER NOT NULL REFERENCES Job_seeker(job_seeker_id) ON DELETE CASCADE,
+  saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(job_id, job_seeker_id)
+);
+
 -- Insert data for categories and types
 INSERT INTO Account_type (account_type_id, account_type_name) 
 VALUES (1, 'Company'), (2, 'Job Seeker') 
@@ -242,3 +251,89 @@ INSERT INTO Address (premise_name, street_name, barangay_name, city_name) VALUES
 INSERT INTO Company (company_name, company_email, company_phone, company_website, company_description, address_id) VALUES
   ('AirTruck Logistics', 'support@airtruck.com', '09345678901', 'www.airtruck.com', 'Reliable logistics and transportation services', 
   (SELECT address_id FROM Address WHERE premise_name = 'AirTruck Logistics Center'));
+
+-- Sample job postings for Namsung Corporation
+INSERT INTO Job (company_id, job_name, job_description, job_location, job_type_id, job_salary, job_quantity, job_requirements, job_benefits) VALUES
+  ((SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation'), 
+   'Software Engineer', 
+   'Develop and maintain software applications for our electronics products.',
+   'Davao City',
+   1, -- Full Time
+   45000.00,
+   2,
+   'Bachelor''s degree in Computer Science or related field. 2+ years experience in software development.',
+   'Health insurance, 13th month pay, performance bonus, training opportunities'),
+  
+  ((SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation'), 
+   'Quality Assurance Specialist', 
+   'Ensure product quality meets company standards through testing and analysis.',
+   'Davao City',
+   1, -- Full Time
+   35000.00,
+   1,
+   'Bachelor''s degree in Engineering or related field. Experience in quality control.',
+   'Health insurance, 13th month pay, overtime pay');
+
+-- Sample job postings for Pear Technologies
+INSERT INTO Job (company_id, job_name, job_description, job_location, job_type_id, job_salary, job_quantity, job_requirements, job_benefits) VALUES
+  ((SELECT company_id FROM Company WHERE company_name = 'Pear Technologies'), 
+   'Full Stack Developer', 
+   'Build modern web applications using latest technologies.',
+   'Cebu City',
+   1, -- Full Time
+   55000.00,
+   3,
+   'Bachelor''s degree in Computer Science. Experience with React, Node.js, and databases.',
+   'Flexible working hours, health insurance, stock options, latest equipment'),
+  
+  ((SELECT company_id FROM Company WHERE company_name = 'Pear Technologies'), 
+   'UI/UX Designer', 
+   'Design beautiful and intuitive user interfaces for our software products.',
+   'Cebu City',
+   1, -- Full Time
+   40000.00,
+   1,
+   'Bachelor''s degree in Design or related field. Portfolio of design work required.',
+   'Creative workspace, design tools provided, health insurance');
+
+-- Sample job postings for AirTruck Logistics
+INSERT INTO Job (company_id, job_name, job_description, job_location, job_type_id, job_salary, job_quantity, job_requirements, job_benefits) VALUES
+  ((SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics'), 
+   'Logistics Coordinator', 
+   'Coordinate shipments and manage logistics operations.',
+   'Manila',
+   1, -- Full Time
+   30000.00,
+   2,
+   'Bachelor''s degree preferred. Experience in logistics or supply chain management.',
+   'Transportation allowance, health insurance, 13th month pay'),
+  
+  ((SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics'), 
+   'Truck Driver', 
+   'Safely transport goods to various destinations.',
+   'Manila',
+   1, -- Full Time
+   25000.00,
+   5,
+   'Valid professional driver''s license. Clean driving record. 2+ years experience.',
+   'Vehicle maintenance covered, overtime pay, health insurance');
+
+-- Link jobs with categories
+INSERT INTO Job_Category_List (job_id, job_category_id) VALUES
+  -- Namsung jobs
+  ((SELECT job_id FROM Job WHERE job_name = 'Software Engineer' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation')), 
+   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Software Development')),
+  ((SELECT job_id FROM Job WHERE job_name = 'Quality Assurance Specialist' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Namsung Corporation')), 
+   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Quality Assurance')),
+  
+  -- Pear jobs
+  ((SELECT job_id FROM Job WHERE job_name = 'Full Stack Developer' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Pear Technologies')), 
+   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Web Development')),
+  ((SELECT job_id FROM Job WHERE job_name = 'UI/UX Designer' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'Pear Technologies')), 
+   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Graphic Design')),
+  
+  -- AirTruck jobs - using existing categories or closest matches
+  ((SELECT job_id FROM Job WHERE job_name = 'Logistics Coordinator' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics')), 
+   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Project Management')),
+  ((SELECT job_id FROM Job WHERE job_name = 'Truck Driver' AND company_id = (SELECT company_id FROM Company WHERE company_name = 'AirTruck Logistics')), 
+   (SELECT job_category_id FROM Job_category WHERE job_category_name = 'Sales')); -- Using Sales as closest match for now

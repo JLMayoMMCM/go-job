@@ -1,7 +1,11 @@
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
+import { SignJWT } from 'jose';
 import pool from '@/lib/database';
-import { sendVerificationEmail } from '@/lib/email';
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-secret-key-here'
+);
 
 export async function POST(request) {
   const client = await pool.connect();
@@ -89,8 +93,6 @@ export async function POST(request) {
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       
       console.log(`Verification code for ${user.account_email}: ${verificationCode}`);
-      
-      // In production, send email with verification code
       
       return NextResponse.json({
         message: 'Please verify your email to continue',

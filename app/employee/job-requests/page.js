@@ -85,7 +85,7 @@ export default function JobRequestsPage() {
     let filtered = applications;
 
     if (filter !== 'all') {
-      filtered = filtered.filter(app => app.application_status === filter);
+      filtered = filtered.filter(app => app.request_status === filter);
     }
 
     if (selectedJob !== 'all') {

@@ -112,7 +112,7 @@ export default function EmployeeDashboard() {
           {/* Quick Actions */}
           <div className="bg-white p-8 rounded-2xl shadow-md">
             <h3 className="text-2xl font-semibold text-gray-800 mb-6">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <button
                 onClick={() => router.push('/employee/add-job')}
                 className="bg-green-600 hover:bg-green-700 text-white p-6 rounded-lg transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg"
@@ -138,6 +138,18 @@ export default function EmployeeDashboard() {
               >
                 <div className="text-3xl mb-2">📝</div>
                 <div className="font-semibold">Posting History</div>
+              </button>
+              <button
+                onClick={() => router.push('/employee/notifications')}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white p-6 rounded-lg transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="text-3xl mb-2">🔔</div>
+                <div className="font-semibold">Notifications</div>
+                {stats.pendingApplications > 0 && (
+                  <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full mt-2 inline-block">
+                    {stats.pendingApplications}
+                  </div>
+                )}
               </button>
               <button
                 onClick={() => router.push('/employee/company')}

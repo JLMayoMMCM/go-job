@@ -68,14 +68,10 @@ export default function PostingHistoryPage() {
   const filterJobs = () => {
     let filtered = jobs;
 
-    if (filter !== 'all') {
-      if (filter === 'active') {
-        filtered = jobs.filter(job => job.job_is_active);
-      } else if (filter === 'inactive') {
-        filtered = jobs.filter(job => !job.job_is_active);
-      } else if (filter === 'expired') {
-        filtered = jobs.filter(job => job.job_closing_date && new Date(job.job_closing_date) < new Date());
-      }
+    if (filter === 'active') {
+      filtered = jobs.filter(job => job.job_is_active);
+    } else if (filter === 'inactive') {
+      filtered = jobs.filter(job => !job.job_is_active);
     }
 
     setFilteredJobs(filtered);
@@ -119,7 +115,7 @@ export default function PostingHistoryPage() {
       <main className="p-8 max-w-7xl mx-auto">
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">Job Posting History</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Posting History</h2>
             <button
               onClick={() => router.push('/employee/add-job')}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
@@ -140,9 +136,9 @@ export default function PostingHistoryPage() {
             </div>
           )}
 
-          {/* Filter */}
+          {/* Filter Buttons */}
           <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
                 className={`px-4 py-2 rounded-lg transition-colors ${
@@ -167,14 +163,6 @@ export default function PostingHistoryPage() {
               >
                 Inactive ({jobs.filter(job => !job.job_is_active).length})
               </button>
-              <button
-                onClick={() => setFilter('expired')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'expired' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Expired ({jobs.filter(job => job.job_closing_date && new Date(job.job_closing_date) < new Date()).length})
-              </button>
             </div>
           </div>
         </div>
@@ -182,92 +170,96 @@ export default function PostingHistoryPage() {
         {/* Jobs List */}
         {filteredJobs.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600">No jobs found.</p>
+            <div className="text-6xl mb-4">📝</div>
+            <p className="text-gray-600 text-lg">No job postings found.</p>
+            <p className="text-gray-500 mt-2">
+              {filter === 'all' ? 'Create your first job posting!' : `No ${filter} jobs found.`}
+            </p>
             <button
               onClick={() => router.push('/employee/add-job')}
               className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
             >
-              Create Your First Job
+              Add New Job
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Details</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posted Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredJobs.map(job => (
-                    <tr key={job.job_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{job.job_name}</div>
-                          <div className="text-sm text-gray-500">{job.job_location}</div>
-                          {job.job_salary && (
-                            <div className="text-sm text-green-600">₱{parseFloat(job.job_salary).toLocaleString()}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {job.job_type_name}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+          <div className="space-y-4">
+            {filteredJobs.map(job => (
+              <div key={job.job_id} className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900">{job.job_name}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           job.job_is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
                           {job.job_is_active ? 'Active' : 'Inactive'}
                         </span>
-                        {job.job_closing_date && new Date(job.job_closing_date) < new Date() && (
-                          <span className="block mt-1 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            Expired
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {job.application_count || 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(job.job_posted_date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-y-1">
-                        <div className="flex flex-col gap-1">
-                          <button
-                            onClick={() => router.push(`/jobs/${job.job_id}`)}
-                            className="text-blue-600 hover:text-blue-900 text-xs"
-                          >
-                            View Details
-                          </button>
-                          <button
-                            onClick={() => router.push(`/employee/job-requests?job=${job.job_id}`)}
-                            className="text-green-600 hover:text-green-900 text-xs"
-                          >
-                            Applications ({job.application_count || 0})
-                          </button>
-                          <button
-                            onClick={() => toggleJobStatus(job.job_id, job.job_is_active)}
-                            className={`text-xs ${
-                              job.job_is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                            }`}
-                          >
-                            {job.job_is_active ? 'Deactivate' : 'Activate'}
-                          </button>
+                        <button
+                          onClick={() => toggleJobStatus(job.job_id, job.job_is_active)}
+                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                            job.job_is_active 
+                              ? 'bg-red-600 hover:bg-red-700 text-white' 
+                              : 'bg-green-600 hover:bg-green-700 text-white'
+                          }`}
+                        >
+                          {job.job_is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Location</span>
+                        <p className="text-gray-900">{job.job_location}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Type</span>
+                        <p className="text-gray-900">{job.job_type_name}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Applications</span>
+                        <p className="text-gray-900">{job.application_count || 0} received</p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">Posted</span>
+                        <p className="text-gray-900">{new Date(job.job_posted_date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+
+                    {job.job_salary && (
+                      <div className="mb-4">
+                        <span className="text-sm font-medium text-gray-500">Salary: </span>
+                        <span className="text-green-600 font-medium">₱{parseFloat(job.job_salary).toLocaleString()}</span>
+                      </div>
+                    )}
+
+                    <p className="text-gray-700 mb-4">{job.job_description?.substring(0, 200)}...</p>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => router.push(`/jobs/${job.job_id}`)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => router.push(`/employee/job-requests?job=${job.job_id}`)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition-colors"
+                      >
+                        View Applications ({job.application_count || 0})
+                      </button>
+                      {job.job_closing_date && (
+                        <div className="ml-auto text-sm text-gray-500">
+                          Closes: {new Date(job.job_closing_date).toLocaleDateString()}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
