@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/DashboardHeader';
 import CompanyRating from '@/components/CompanyRating';
+import React from 'react';
 
 export default function JobDetailsPage({ params }) {
   const router = useRouter();
@@ -18,9 +19,12 @@ export default function JobDetailsPage({ params }) {
   const [coverLetter, setCoverLetter] = useState('');
   const [showApplicationForm, setShowApplicationForm] = useState(false);
 
+  // Unwrap params using React.use()
+  const routeParams = React.use(params);
+
   useEffect(() => {
     loadJobDetails();
-  }, [params.id]);
+  }, [routeParams.id]);
 
   const loadJobDetails = async () => {
     try {
@@ -42,7 +46,7 @@ export default function JobDetailsPage({ params }) {
       }
 
       // Load job details
-      const jobResponse = await fetch(`/api/jobs/${params.id}`, {
+      const jobResponse = await fetch(`/api/jobs/${routeParams.id}`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
 

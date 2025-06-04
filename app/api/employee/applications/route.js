@@ -22,14 +22,21 @@ export async function GET(request) {
     const token = authHeader.split(' ')[1];
     const { payload } = await jwtVerify(token, JWT_SECRET);
 
-    // Get applications for employee's company jobs
+    // Get applications for all jobs posted by this employee's company
     const applicationsQuery = await client.query(`
       SELECT 
-        jr.*,
+        jr.request_id,
+        jr.job_id,
+        jr.job_seeker_id,
+        jr.request_date,
+        jr.request_status,
+        jr.cover_letter,
+        jr.employee_response,
+        jr.response_date,
         j.job_name,
-        j.job_id,
         p.first_name || ' ' || p.last_name as applicant_name,
-        a.account_email as applicant_email
+        a.account_email as applicant_email,
+        a.account_id as applicant_account_id
       FROM Job_requests jr
       JOIN Job j ON jr.job_id = j.job_id
       JOIN Employee e ON j.company_id = e.company_id

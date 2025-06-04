@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/DashboardHeader';
+import ApplicantProfileModal from '@/components/ApplicantProfileModal';
 
 export default function JobRequestsPage() {
   const router = useRouter();
@@ -10,10 +11,11 @@ export default function JobRequestsPage() {
   const [filteredApplications, setFilteredApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [selectedJob, setSelectedJob] = useState('all');
-  const [jobs, setJobs] = useState([]);
+  const [selectedJob, setSelectedJob] = useState('all');  const [jobs, setJobs] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedApplicantId, setSelectedApplicantId] = useState(null);
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -116,10 +118,19 @@ export default function JobRequestsPage() {
       } else {
         const data = await res.json();
         setError(data.error || `Failed to ${status} job request`);
-      }
-    } catch (error) {
+      }    } catch (error) {
       setError('Network error. Please try again.');
     }
+  };
+
+  const handleViewProfile = (applicantAccountId) => {
+    setSelectedApplicantId(applicantAccountId);
+    setShowProfileModal(true);
+  };
+
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedApplicantId(null);
   };
 
   if (isLoading) {
@@ -230,43 +241,58 @@ export default function JobRequestsPage() {
                         </p>
                       </div>
                     )}
-                  </div>
-
-                  {/* Actions */}
-                  {application.request_status === 'pending' && (
-                    <div className="lg:col-span-1">
-                      <h4 className="font-medium text-gray-900 mb-3">Actions</h4>
-                      <div className="space-y-3">
-                        <button
-                          onClick={() => handleApplicationResponse(application.request_id, 'accepted', 'Congratulations! We would like to move forward with your application.')}
-                          className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-                        >
-                          Accept Request
-                        </button>
-                        <button
-                          onClick={() => {
-                            const response = prompt('Optional: Add a message for the applicant');
-                            handleApplicationResponse(application.request_id, 'rejected', response || 'Thank you for your interest. We have decided to move forward with other candidates.');
-                          }}
-                          className="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                        >
-                          Reject Request
-                        </button>
-                        <button
-                          onClick={() => router.push(`/jobs/${application.job_id}`)}
-                          className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                          View Job Details
-                        </button>
-                      </div>
+                  </div>                  {/* Actions */}
+                  <div className="lg:col-span-1">
+                    <h4 className="font-medium text-gray-900 mb-3">Actions</h4>
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => handleViewProfile(application.applicant_account_id)}
+                        className="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                      >
+                        View Profile
+                      </button>
+                      
+                      {application.request_status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleApplicationResponse(application.request_id, 'accepted', 'Congratulations! We would like to move forward with your application.')}
+                            className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                          >
+                            Accept Request
+                          </button>
+                          <button
+                            onClick={() => {
+                              const response = prompt('Optional: Add a message for the applicant');
+                              handleApplicationResponse(application.request_id, 'rejected', response || 'Thank you for your interest. We have decided to move forward with other candidates.');
+                            }}
+                            className="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                          >
+                            Reject Request
+                          </button>
+                        </>
+                      )}
+                      
+                      <button
+                        onClick={() => router.push(`/jobs/${application.job_id}`)}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                      >
+                        View Job Details
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
+          </div>        )}
       </main>
+
+      {/* Applicant Profile Modal */}
+      {showProfileModal && (
+        <ApplicantProfileModal
+          applicantId={selectedApplicantId}
+          onClose={handleCloseProfileModal}
+        />
+      )}
     </div>
   );
 }

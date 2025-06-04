@@ -40,18 +40,28 @@ export async function GET(request) {
     if (hasPreferences) {
       // Get recommended jobs based on user preferences with hierarchy
       jobsQuery = await client.query(`
-        SELECT DISTINCT
-          j.job_id, j.job_name, j.job_description, j.job_location, 
-          j.job_salary, j.job_time, j.job_rating, j.job_posted_date,
-          c.company_name, c.company_rating, c.company_id,
+        SELECT 
+          j.job_id, 
+          j.job_name, 
+          j.job_description, 
+          j.job_location, 
+          j.job_salary, 
+          j.job_time, 
+          j.job_rating, 
+          j.job_posted_date,
+          c.company_name, 
+          c.company_rating, 
+          c.company_id,
           jt.job_type_name,
           STRING_AGG(DISTINCT jc.job_category_name, ', ') as job_categories,
           STRING_AGG(DISTINCT cf.category_field_name, ', ') as category_fields,
-          CASE 
-            WHEN exact_match.person_id IS NOT NULL THEN 3
-            WHEN field_match.person_id IS NOT NULL THEN 2
-            ELSE 1 
-          END as preference_priority,
+          MAX(
+            CASE 
+              WHEN exact_match.person_id IS NOT NULL THEN 3
+              WHEN field_match.person_id IS NOT NULL THEN 2
+              ELSE 1 
+            END
+          ) as preference_priority,
           COALESCE(c.company_rating, 0) as company_rating_score
         FROM Job j
         JOIN Company c ON j.company_id = c.company_id
@@ -89,7 +99,7 @@ export async function GET(request) {
           )
           AND (exact_match.person_id IS NOT NULL OR field_match.person_id IS NOT NULL)
         GROUP BY 
-          j.job_id, c.company_id, jt.job_type_name, exact_match.person_id, field_match.person_id
+          j.job_id, c.company_id, jt.job_type_name, j.job_name, j.job_description, j.job_location, j.job_salary, j.job_time, j.job_rating, j.job_posted_date, c.company_name, c.company_rating
         ORDER BY 
           preference_priority DESC,
           company_rating_score DESC,
@@ -99,13 +109,13 @@ export async function GET(request) {
     } else {
       // Fallback: return recent active jobs if no preferences set
       jobsQuery = await client.query(`
-        SELECT DISTINCT
+        SELECT 
           j.job_id, j.job_name, j.job_description, j.job_location, 
           j.job_salary, j.job_time, j.job_rating, j.job_posted_date,
           c.company_name, c.company_rating, c.company_id,
           jt.job_type_name,
-          jc.job_category_name,
-          cf.category_field_name,
+          STRING_AGG(DISTINCT jc.job_category_name, ', ') as job_categories,
+          STRING_AGG(DISTINCT cf.category_field_name, ', ') as category_fields,
           0 as preference_score
         FROM Job j
         JOIN Company c ON j.company_id = c.company_id
@@ -121,6 +131,8 @@ export async function GET(request) {
             JOIN Job_seeker js2 ON jr2.job_seeker_id = js2.job_seeker_id
             WHERE jr2.job_id = j.job_id AND js2.account_id = $1
           )
+        GROUP BY 
+          j.job_id, c.company_id, jt.job_type_name, j.job_name, j.job_description, j.job_location, j.job_salary, j.job_time, j.job_rating, j.job_posted_date, c.company_name, c.company_rating
         ORDER BY 
           COALESCE(c.company_rating, 0) DESC,
           j.job_posted_date DESC
