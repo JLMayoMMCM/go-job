@@ -132,11 +132,10 @@ export default function DashboardHeader({ user }) {
     <>
       <header className="dashboard-header">
         <div className="header-content">
-          <div className="header-left">
-            <button className="menu-button" onClick={toggleSidebar}>
+          <div className="header-left">            <button className="menu-button" onClick={toggleSidebar}>
               ☰
             </button>
-            <h1 className="logo" onClick={() => navigateTo('/')}>GO JOB</h1>
+            <img src="/Assets/Title.png" alt="GO JOB" className="logo" onClick={() => navigateTo('/')} />
           </div>
           
           <div className="header-right">

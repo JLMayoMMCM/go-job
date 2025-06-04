@@ -92,7 +92,7 @@ export default function VerifyPage() {
   return (
     <div className="verify-container">
       <div className="verify-card">
-        <h1 className="logo">GO JOB</h1>
+        <img src="/Assets/Title.png" alt="GO JOB" className="logo" />
         <h2 className="verify-title">VERIFY EMAIL</h2>
         
         <p className="verify-description">

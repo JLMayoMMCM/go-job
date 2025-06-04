@@ -66,9 +66,8 @@ export default function JobPreferencesPage() {
   };
 
   return (
-    <div className="preferences-container">
-      <div className="preferences-card">
-        <h1 className="logo">GO JOB</h1>
+    <div className="preferences-container">      <div className="preferences-card">
+        <img src="/Assets/Title.png" alt="GO JOB" className="logo" />
         <h2 className="preferences-title">Select Your Job Preferences</h2>
         <p className="preferences-description">
           Choose the job categories you're interested in to get better job recommendations.

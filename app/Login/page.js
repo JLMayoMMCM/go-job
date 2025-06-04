@@ -65,7 +65,7 @@ export default function LoginPage() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="logo">GO JOB</h1>
+        <img src="/Assets/Title.png" alt="GO JOB" className="logo" />
         
         <h2 className="login-title">LOGIN</h2>
         

@@ -37,8 +37,7 @@ export async function POST(request) {
     subject: 'GO JOB - Email Verification Code',
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-        <div style="background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <div style="text-align: center; margin-bottom: 30px;">
+        <div style="background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">          <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="color: #007bff; font-size: 2.5em; margin: 0; font-weight: bold;">GO JOB</h1>
             <p style="color: #666; font-size: 1.1em; margin: 10px 0 0 0;">Find Your Perfect Career Match</p>
           </div>

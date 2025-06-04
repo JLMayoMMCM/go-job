@@ -158,7 +158,7 @@ export default function RegisterPage() {
   return (
     <div className="register-container">
       <div className="register-card">
-        <h1 className="logo">GO JOB</h1>
+        <img src="/Assets/Title.png" alt="GO JOB" className="logo" />
         <h2 className="register-title">REGISTER</h2>
         
         {error && <div className="error-message">{error}</div>}

@@ -38,11 +38,9 @@ export default function Home() {
       console.error('Error navigating to jobs:', error);
     }
   };
-
   return (
-    <div className="landing-container">
-      <div className="landing-content">
-        <h1 className="landing-title">GO JOB</h1>
+    <div className="landing-container">      <div className="landing-content">
+        <img src="/Assets/Logo.png" alt="GO JOB" className="landing-title" />
         <p className="landing-subtitle">Find Your Perfect Career Match</p>
         
         <div className="landing-buttons">
