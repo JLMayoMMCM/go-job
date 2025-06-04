@@ -2,6 +2,9 @@ import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 import pool from '@/lib/database';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }

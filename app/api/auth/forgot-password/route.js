@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/database';
 import { sendEmail } from '@/lib/email';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Generate random 6-digit code
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();

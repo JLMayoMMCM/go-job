@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 const nodemailer = require('nodemailer');
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request) {
   const { email, code } = await request.json();
 

@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import pool from '@/lib/database';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-here'
 );

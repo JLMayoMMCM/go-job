@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/database';
 import bcrypt from 'bcrypt';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const { emailOrUsername, code, newPassword } = await request.json();
