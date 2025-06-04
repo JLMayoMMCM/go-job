@@ -1,9 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import './verify.css';
 
-export default function VerifyPage() {
+// Force dynamic rendering to prevent static generation issues with useSearchParams
+export const dynamic = 'force-dynamic';
+
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [code, setCode] = useState('');
@@ -117,8 +120,7 @@ export default function VerifyPage() {
 
           <button type="submit" className="verify-btn" disabled={isLoading}>
             {isLoading ? 'Verifying...' : 'VERIFY'}
-          </button>
-        </form>
+          </button>        </form>
 
         <div className="resend-section">
           <span>Didn't receive the code?</span>
@@ -133,5 +135,23 @@ export default function VerifyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="verify-container">
+      <div className="verify-form">
+        <h2>Loading verification page...</h2>
+      </div>
+    </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyContent />
+    </Suspense>
   );
 }
