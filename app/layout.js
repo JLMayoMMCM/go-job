@@ -21,9 +21,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <meta name="google-signin-client_id" content={process.env.GOOGLE_CLIENT_ID} />
-      </head>
-      <body
+      </head>      <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         {children}
       </body>

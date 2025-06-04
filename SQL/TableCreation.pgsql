@@ -223,6 +223,17 @@ CREATE TABLE employee_company_notification_read (
   PRIMARY KEY (employee_id, company_notification_id)
 );
 
+-- Password Reset Codes table - to store verification codes for password reset
+CREATE TABLE password_reset_codes (
+  id         SERIAL      PRIMARY KEY,
+  account_id INTEGER     NOT NULL REFERENCES account(account_id) ON DELETE CASCADE,
+  code       VARCHAR(6)  NOT NULL,
+  expires_at TIMESTAMP   NOT NULL,
+  created_at TIMESTAMP   DEFAULT NOW(),
+  used       BOOLEAN     DEFAULT FALSE,
+  UNIQUE(account_id)
+);
+
 -- Insert data for categories and types
 INSERT INTO account_type (account_type_id, account_type_name) 
 VALUES (1, 'Company'), (2, 'Job Seeker') 

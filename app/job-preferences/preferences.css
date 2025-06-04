@@ -1,6 +1,6 @@
 .preferences-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #5585b5 0%, #53a8b6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +10,7 @@
 .preferences-card {
   background: white;
   border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(85, 133, 181, 0.2);
   padding: 40px;
   width: 100%;
   max-width: 600px;
@@ -20,7 +20,7 @@
 .logo {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: #5585b5;
   margin-bottom: 20px;
   font-style: italic;
 }
@@ -28,12 +28,12 @@
 .preferences-title {
   font-size: 24px;
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 10px;
 }
 
 .preferences-description {
-  color: #666;
+  color: #6c757d;
   margin-bottom: 30px;
   line-height: 1.5;
 }
@@ -46,19 +46,19 @@
 }
 
 .field-group {
-  background: #f8f9fa;
+  background: #bbe4e9;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
+  border: 1px solid #79c2d0;
 }
 
 .field-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #495057;
+  color: #2c3e50;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid #5585b5;
 }
 
 .field-categories {
@@ -69,30 +69,30 @@
 
 .category-btn {
   padding: 15px 20px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #79c2d0;
   background: white;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
-  color: #333;
+  color: #2c3e50;
 }
 
 .category-btn:hover {
-  border-color: #007bff;
-  background: #f8f9ff;
+  border-color: #5585b5;
+  background: #bbe4e9;
 }
 
 .category-btn.selected {
-  border-color: #007bff;
-  background: #007bff;
+  border-color: #5585b5;
+  background: #5585b5;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 5px 15px rgba(85, 133, 181, 0.3);
 }
 
 .save-btn {
-  background: #28a745;
+  background: #53a8b6;
   color: white;
   border: none;
   padding: 15px 30px;
@@ -104,19 +104,19 @@
 }
 
 .save-btn:hover:not(:disabled) {
-  background: #218838;
+  background: #5585b5;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 5px 15px rgba(83, 168, 182, 0.3);
 }
 
 .save-btn:disabled {
-  background: #6c757d;
+  background: #79c2d0;
   cursor: not-allowed;
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;

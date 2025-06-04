@@ -1,6 +1,6 @@
 .register-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #5585b5 0%, #53a8b6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +10,7 @@
 .register-card {
   background: white;
   border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(85, 133, 181, 0.2);
   padding: 40px;
   width: 100%;
   max-width: 500px;
@@ -20,7 +20,7 @@
 .logo {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: #5585b5;
   margin-bottom: 20px;
   font-style: italic;
 }
@@ -28,14 +28,14 @@
 .register-title {
   font-size: 24px;
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 20px;
   letter-spacing: 2px;
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
@@ -43,12 +43,12 @@
 }
 
 .success-message {
-  background: #d4edda;
-  color: #155724;
+  background: rgba(83, 168, 182, 0.1);
+  color: #53a8b6;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid #c3e6cb;
+  border: 1px solid #79c2d0;
 }
 
 .user-type-toggle {
@@ -61,9 +61,8 @@
 .toggle-btn {
   flex: 1;
   padding: 12px 24px;
-  border: 2px solid #007bff;
-  background: white;
-  color: #007bff;
+  border: 2px solid #5585b5;  background: white;
+  color: #5585b5;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -72,12 +71,12 @@
 }
 
 .toggle-btn.active {
-  background: #007bff;
+  background: #5585b5;
   color: white;
 }
 
 .toggle-btn:hover {
-  background: #0056b3;
+  background: #53a8b6;
   color: white;
 }
 
@@ -98,7 +97,7 @@
 }
 
 .register-form::-webkit-scrollbar-thumb {
-  background: #007bff;
+  background: #5585b5;
   border-radius: 10px;
 }
 
@@ -118,7 +117,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
   font-size: 12px;
   letter-spacing: 1px;
 }
@@ -126,7 +125,7 @@
 .input-group input {
   width: 100%;
   padding: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #bbe4e9;
   border-radius: 8px;
   font-size: 16px;
   background: #f8f9fa;
@@ -136,15 +135,15 @@
 
 .input-group input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #5585b5;
   background: white;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(85, 133, 181, 0.1);
 }
 
 .input-group select {
   width: 100%;
   padding: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #bbe4e9;
   border-radius: 8px;
   font-size: 16px;
   background: #f8f9fa;
@@ -154,9 +153,9 @@
 
 .input-group select:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #5585b5;
   background: white;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(85, 133, 181, 0.1);
 }
 
 .input-group textarea {
@@ -174,9 +173,9 @@
 
 .input-group textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #5585b5;
   background: white;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(85, 133, 181, 0.1);
 }
 
 .input-help {
@@ -190,18 +189,18 @@
 
 .section-title {
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
   font-size: 14px;
   letter-spacing: 1px;
   margin: 25px 0 15px 0;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #bbe4e9;
   padding-bottom: 5px;
 }
 
 .register-btn {
   width: 100%;
-  background: #007bff;
+  background: #5585b5;
   color: white;
   border: none;
   padding: 15px;
@@ -214,9 +213,9 @@
 }
 
 .register-btn:hover:not(:disabled) {
-  background: #0056b3;
+  background: #53a8b6;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 5px 15px rgba(85, 133, 181, 0.3);
 }
 
 .register-btn:disabled {
@@ -236,7 +235,7 @@
 .login-link-btn {
   background: none;
   border: none;
-  color: #007bff;
+  color: #5585b5;
   text-decoration: underline;
   cursor: pointer;
   font-weight: 500;
@@ -244,7 +243,7 @@
 }
 
 .login-link-btn:hover {
-  color: #0056b3;
+  color: #53a8b6;
 }
 
 .register-company-section {
@@ -257,13 +256,13 @@
 }
 
 .register-company-section span {
-  color: #666;
+  color: #6c757d;
   margin-right: 10px;
 }
 
 .company-register-btn {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
+  background: linear-gradient(135deg, #79c2d0, #53a8b6);
+  color: #2c3e50;
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -274,9 +273,10 @@
 }
 
 .company-register-btn:hover {
-  background: linear-gradient(135deg, #218838, #1e9d8a);
+  background: linear-gradient(135deg, #53a8b6, #5585b5);
+  color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 4px 8px rgba(121, 194, 208, 0.3);
 }
 
 .verification-modal {
@@ -304,7 +304,7 @@
 }
 
 .verification-modal-content h3 {
-  color: #28a745;
+  color: #79c2d0;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
@@ -323,7 +323,7 @@
 }
 
 .verify-now-btn {
-  background: #007bff;
+  background: #5585b5;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -334,9 +334,9 @@
 }
 
 .verify-now-btn:hover {
-  background: #0056b3;
+  background: #53a8b6;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 5px 15px rgba(85, 133, 181, 0.3);
 }
 
 .verify-later-btn {

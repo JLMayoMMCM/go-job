@@ -2,18 +2,18 @@
   background: white;
   border-radius: 10px;
   padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(85, 133, 181, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #bbe4e9;
   min-width: 300px;
   max-width: 350px;
 }
 
 .job-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-  border-color: #007bff;
+  box-shadow: 0 5px 20px rgba(85, 133, 181, 0.2);
+  border-color: #5585b5;
 }
 
 .job-header {
@@ -21,7 +21,7 @@
 }
 
 .job-title {
-  color: #333;
+  color: #2c3e50;
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
   font-weight: 600;
@@ -37,13 +37,13 @@
 }
 
 .company-name {
-  color: #007bff;
+  color: #5585b5;
   font-weight: 500;
   font-size: 0.9rem;
 }
 
 .company-rating {
-  color: #ffa500;
+  color: #79c2d0;
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -58,18 +58,18 @@
 }
 
 .job-location {
-  color: #666;
+  color: #6c757d;
 }
 
 .job-salary {
-  color: #28a745;
+  color: #53a8b6;
   font-weight: 600;
   font-size: 1rem;
 }
 
 .job-type {
-  color: #6c757d;
-  background: #f8f9fa;
+  color: #5585b5;
+  background: #bbe4e9;
   padding: 0.25rem 0.5rem;
   border-radius: 15px;
   font-size: 0.8rem;
@@ -92,13 +92,13 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #bbe4e9;
   font-size: 0.8rem;
-  color: #999;
+  color: #6c757d;
 }
 
 .job-rating {
-  color: #ffa500;
+  color: #79c2d0;
 }
 
 .employer-actions {
@@ -107,16 +107,16 @@
   align-items: center;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #bbe4e9;
 }
 
 .applications-count {
-  color: #666;
+  color: #6c757d;
   font-size: 0.9rem;
 }
 
 .manage-btn {
-  background: #007bff;
+  background: #5585b5;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -127,7 +127,7 @@
 }
 
 .manage-btn:hover {
-  background: #0056b3;
+  background: #53a8b6;
 }
 
 @media (max-width: 768px) {

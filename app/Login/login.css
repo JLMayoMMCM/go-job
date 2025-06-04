@@ -1,7 +1,7 @@
 /* Login Page Styles */
 .login-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #5585b5 0%, #53a8b6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,7 +12,7 @@
 .login-card {
   background: white;
   border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(85, 133, 181, 0.2);
   padding: 40px;
   width: 100%;
   max-width: 400px;
@@ -22,7 +22,7 @@
 .logo {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: #5585b5;
   margin-bottom: 30px;
   font-style: italic;
 }
@@ -30,14 +30,14 @@
 .login-title {
   font-size: 24px;
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 30px;
   letter-spacing: 2px;
 }
 
 .user-type-toggle {
   display: flex;
-  background: #f0f0f0;
+  background: #bbe4e9;
   border-radius: 25px;
   padding: 4px;
   margin-bottom: 30px;
@@ -49,16 +49,16 @@
   border: none;
   border-radius: 20px;
   background: transparent;
-  color: #666;
+  color: #5585b5;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .toggle-btn.active {
-  background: #007bff;
+  background: #5585b5;
   color: white;
-  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 2px 10px rgba(85, 133, 181, 0.3);
 }
 
 .login-form {
@@ -74,7 +74,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
   font-size: 12px;
   letter-spacing: 1px;
 }
@@ -82,7 +82,7 @@
 .input-group input {
   width: 100%;
   padding: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #bbe4e9;
   border-radius: 8px;
   font-size: 16px;
   background: #f8f9fa;
@@ -92,9 +92,9 @@
 
 .input-group input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #5585b5;
   background: white;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(85, 133, 181, 0.1);
 }
 
 .action-buttons {
@@ -107,7 +107,7 @@
 .forgot-password-btn {
   background: none;
   border: none;
-  color: #007bff;
+  color: #53a8b6;
   text-decoration: underline;
   cursor: pointer;
   font-size: 12px;
@@ -115,11 +115,11 @@
 }
 
 .forgot-password-btn:hover {
-  color: #0056b3;
+  color: #5585b5;
 }
 
 .login-btn {
-  background: #007bff;
+  background: #5585b5;
   color: white;
   border: none;
   padding: 12px 30px;
@@ -131,15 +131,15 @@
 }
 
 .login-btn:hover {
-  background: #0056b3;
+  background: #53a8b6;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 5px 15px rgba(85, 133, 181, 0.3);
 }
 
 .google-login-btn {
   width: 100%;
-  background: #dd4b39;
-  color: white;
+  background: #79c2d0;
+  color: #2c3e50;
   border: none;
   padding: 15px;
   border-radius: 8px;
@@ -150,9 +150,10 @@
 }
 
 .google-login-btn:hover {
-  background: #c23321;
+  background: #53a8b6;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(221, 75, 57, 0.3);
+  box-shadow: 0 5px 15px rgba(121, 194, 208, 0.3);
 }
 
 .signup-section {
@@ -167,7 +168,7 @@
 .signup-btn {
   background: none;
   border: none;
-  color: #007bff;
+  color: #53a8b6;
   text-decoration: underline;
   cursor: pointer;
   font-weight: 500;
@@ -175,7 +176,7 @@
 }
 
 .signup-btn:hover {
-  color: #0056b3;
+  color: #5585b5;
 }
 
 .support-section {
@@ -185,8 +186,8 @@
 }
 
 .support-btn {
-  background: #6c757d;
-  color: white;
+  background: #79c2d0;
+  color: #2c3e50;
   border: none;
   padding: 10px 20px;
   border-radius: 20px;
@@ -196,18 +197,67 @@
 }
 
 .support-btn:hover {
-  background: #5a6268;
+  background: #53a8b6;
+  color: white;
   transform: translateY(-2px);
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
   border: 1px solid #f5c6cb;
   font-size: 14px;
+}
+
+/* Forgot Password Page Styles */
+.login-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 30px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.success-message {
+  background: #79c2d0;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.back-btn {
+  background: none;
+  border: 2px solid #bbe4e9;
+  color: #5585b5;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.back-btn:hover {
+  background: #bbe4e9;
+  border-color: #79c2d0;
+  transform: translateY(-2px);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 /* Responsive Design */

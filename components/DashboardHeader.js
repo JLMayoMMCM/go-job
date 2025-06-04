@@ -87,10 +87,25 @@ export default function DashboardHeader({ user }) {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
   const navigateTo = (path) => {
     router.push(path);
     setIsSidebarOpen(false);
+  };
+
+  const handleLogoClick = () => {
+    // Navigate to appropriate dashboard based on user type
+    if (currentUser?.userType === 'employee') {
+      navigateTo('/employee/dashboard');
+    } else if (currentUser?.userType === 'job-seeker') {
+      navigateTo('/jobseeker/dashboard');
+    } else {
+      // Fallback to general dashboard
+      navigateTo('/Dashboard');
+    }
+  };
+
+  const handleProfileClick = () => {
+    navigateTo('/profile');
   };
 
   const getInitials = (user) => {
@@ -135,13 +150,12 @@ export default function DashboardHeader({ user }) {
           <div className="header-left">            <button className="menu-button" onClick={toggleSidebar}>
               ☰
             </button>
-            <img src="/Assets/Title.png" alt="GO JOB" className="logo" onClick={() => navigateTo('/')} />
+            <img src="/Assets/Title.png" alt="GO JOB" className="logo" onClick={handleLogoClick} />
           </div>
           
           <div className="header-right">
             <div className="user-info">
-              <span>Welcome, {currentUser?.firstName || currentUser?.username || 'User'}!</span>
-              <div className="user-avatar">
+              <span>Welcome, {currentUser?.firstName || currentUser?.username || 'User'}!</span>              <div className="user-avatar" onClick={handleProfileClick}>
                 {currentUser?.profilePhoto ? (
                   <img 
                     src={currentUser.profilePhoto} 
@@ -164,8 +178,7 @@ export default function DashboardHeader({ user }) {
       <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="sidebar-content">
-          <div className="sidebar-profile">
-            <div className="sidebar-avatar">
+          <div className="sidebar-profile">            <div className="sidebar-avatar" onClick={handleProfileClick}>
               {currentUser?.profilePhoto ? (
                 <img 
                   src={currentUser.profilePhoto} 
